@@ -1,6 +1,5 @@
 package com.as.anagramsolver;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -117,7 +116,7 @@ public class StartPage extends Activity {
 	private int getSelectedLanguage(String[] values) {
 		int i=0;
 		for(; i<values.length; i++){
-				if(values[i].equals(languageSelected))
+				if(values[i].equalsIgnoreCase(languageSelected.toString()))
 					return i;
 		}
 		return 0;
@@ -145,13 +144,14 @@ public class StartPage extends Activity {
     	String inLetters = input.getText().toString().trim();
     	
     	if (dbCreator!=null) {
-    		ArrayList<String> words = dbCreator.getMatchingAnagrams(languageSelected, inLetters);
+    		Set<String> w = dbCreator.getAllMatchingAnagrams(languageSelected, inLetters);
+    		String[] words = w.toArray(new String[w.size()]);
     		
 	        TextView output = (TextView) findViewById(R.id.results);
-	        StringBuilder str = new StringBuilder("Possible results: " + words.size() + "\n");
-
-	    	for(int i=0; i<words.size() && i<1000; i++)
-	    		str.append(words.get(i)+"\n"); 
+	        StringBuilder str = new StringBuilder("Matches (" + words.length + "):\n");
+	        
+	    	for(int i=0; i<words.length; i++)
+	    		str.append(words[i]+"\n"); 
 	    	output.setText(str.toString());
     	}
     }

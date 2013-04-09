@@ -8,12 +8,13 @@ It works by normalizing both the letters it's searching and the words in the dic
 
 For example if you search an anagram for the letters "nsake" it will convert it to "aekns" and compare it to the sorted words in the English table. There it will find 2 instances of aekns. One for the word "snake" and one for the word "sneak" and it will return them. 
 
-This of course results in a bit bigger database (depending on the dictionaries size). Alternatively radix tries could be used to load each dictionary and its normalized version but when i tested some implementations of radix tries my device would eventually run out of memory for the app. So a database was a 'lighter' choice. 
+This of course results in a bit bigger database (depending on the dictionaries size). Alternatively radix tries could be used to load each dictionary and its normalized version but when i tested some implementations of radix tries my device would eventually run out of memory for the app. So a database was a 'lighter' choice. I also tested a solution where i copied the databases on the first run instead of creating them from scratch but that took double the storage space in the device and the speed improvement on the first run wasn't that significant.
+
 
 ##Screenshots
 
-![Screenshot1](https://raw.github.com/uberspot/AnagramSolver/master/screenshot1.png)
-![Screenshot2](https://raw.github.com/uberspot/AnagramSolver/master/screenshot2.png)
+![Screenshot1](https://raw.github.com/uberspot/AnagramSolver/master/screenshot1.jpg)
+![Screenshot2](https://raw.github.com/uberspot/AnagramSolver/master/screenshot2.jpg)
 
 ##License
 

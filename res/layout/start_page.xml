@@ -44,7 +44,9 @@
 			        android:layout_height="wrap_content"
 			        android:gravity="center_vertical|center_horizontal"
 			        android:onClick="onSearchButtonClick"
-			        android:text="@string/search_words" />
+			        android:text="@string/search_words" 
+			        style="@style/ButtonText"
+                    android:background="@drawable/btn_black"/>
 			     <TextView
 			        android:id="@+id/results"
 			        android:layout_width="match_parent"

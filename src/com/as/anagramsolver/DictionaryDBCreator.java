@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -137,12 +136,38 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		db.endTransaction();
 	}
 	
-	/** Returns an ArrayList<String> with all the words that can be formed from the given letters in value
+	/** Returns a Set<String> with all the words that can be formed from the given letters in value and from all the subsets of those letters
 	 * @param dict The dictionary in which to search for matches
 	 * @param value The letters to search for anagrams
 	 * @return
 	 */
-	public ArrayList<String> getMatchingAnagrams(DICTIONARY dict, String value) {
+	public Set<String> getAllMatchingAnagrams(DICTIONARY dict, String value) {
+			int numOfSubsets = 1 << value.length(); 
+			Set<String> matchingWords = new HashSet<String>();
+			
+			for (int i = 0; i < numOfSubsets; i++) {
+				int pos = value.length() - 1;
+				int bitmask = i;
+	
+				StringBuilder str = new StringBuilder("");
+				while (bitmask > 0) {
+					if ((bitmask & 1) == 1)
+						str.append(value.charAt(pos));
+					bitmask >>= 1;
+					pos--;
+				}
+				if(str.length()>3)
+					matchingWords.addAll( getMatchingAnagrams(dict, str.toString()) );
+			}
+			return matchingWords;
+	}
+	
+	/** Returns a Set<String> with all the words that can be formed from the given letters in value
+	 * @param dict The dictionary in which to search for matches
+	 * @param value The letters to search for anagrams
+	 * @return
+	 */
+	public Set<String> getMatchingAnagrams(DICTIONARY dict, String value) {
 		char[] l = value.toCharArray();
 		java.util.Arrays.sort(l);
 		
@@ -153,16 +178,16 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	    String selectQuery = "SELECT  * FROM " + dict.toString() + " WHERE aword=\"" +  deaccented +"\"";
 	    Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
 	    
-	    ArrayList<String> matchingWords = new ArrayList<String>();
+	    Set<String> matchingWords = new HashSet<String>();
 	    
-	    // looping through all results and adding to list
-	    if (cursor.moveToFirst()) {
-	        do {
-	        	matchingWords.add(cursor.getString(0));
-	        } while (cursor.moveToNext());
-	    }
-	    
-	    return matchingWords;
+		// looping through all results and adding to list
+		if (cursor.moveToFirst()) {
+			do {
+				matchingWords.add(cursor.getString(0));
+			} while (cursor.moveToNext());
+		}
+
+		return matchingWords;
 	}
 	
 	/** Returns true if the table with the given name exists in the database, false otherwise
