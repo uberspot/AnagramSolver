@@ -13,8 +13,8 @@ This of course results in a bit bigger database (depending on the dictionaries s
 
 ##Screenshots
 
-![Screenshot1](https://raw.github.com/uberspot/AnagramSolver/master/screenshot1.jpg)
-![Screenshot2](https://raw.github.com/uberspot/AnagramSolver/master/screenshot2.jpg)
+![Screenshot1](https://raw.github.com/uberspot/AnagramSolver/master/screenshot1.png)
+![Screenshot2](https://raw.github.com/uberspot/AnagramSolver/master/screenshot2.png)
 
 ##License
 
