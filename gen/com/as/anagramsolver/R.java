@@ -30,16 +30,19 @@ public final class R {
         public static final int ic_settings=0x7f020003;
     }
     public static final class id {
-        public static final int input=0x7f0b0002;
-        public static final int inputText=0x7f0b0003;
-        public static final int langSpinner=0x7f0b0001;
-        public static final int results=0x7f0b0005;
-        public static final int scrollView1=0x7f0b0000;
-        public static final int searchButton=0x7f0b0004;
-        public static final int settings_button=0x7f0b0006;
+        public static final int LinearLayout01=0x7f0b0006;
+        public static final int input=0x7f0b0001;
+        public static final int inputText=0x7f0b0002;
+        public static final int langSpinner=0x7f0b0000;
+        public static final int results=0x7f0b0004;
+        public static final int searchButton=0x7f0b0003;
+        public static final int settings_button=0x7f0b0008;
+        public static final int wordList=0x7f0b0005;
+        public static final int wordTextView=0x7f0b0007;
     }
     public static final class layout {
         public static final int start_page=0x7f030000;
+        public static final int word_layout=0x7f030001;
     }
     public static final class menu {
         public static final int start_page=0x7f0a0000;
@@ -66,10 +69,6 @@ public final class R {
     }
     public static final class style {
         /** 
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    
-
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
@@ -92,6 +91,7 @@ public final class R {
          */
         public static final int AppTheme=0x7f090001;
         public static final int ButtonText=0x7f090002;
+        public static final int textStyle=0x7f090003;
     }
     public static final class xml {
         public static final int settings=0x7f040000;

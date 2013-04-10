@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.as.anagramsolver.DictionaryDBCreator.DICTIONARY;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
@@ -13,6 +14,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.view.Menu;
@@ -20,10 +22,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class StartPage extends Activity {
 
@@ -31,6 +36,12 @@ public class StartPage extends Activity {
 	private final static String preferencesName = "AnagramPrefs";
 	private DICTIONARY languageSelected;
 	private Set<String> languagesEnabled;
+	
+	/* Views */
+	private ListView listView;
+	private TextView output;
+	private EditText input;
+	private Spinner spinner;
 	
 	/** An AsyncTask that:
 	 * - Displays a progress dialog
@@ -80,6 +91,25 @@ public class StartPage extends Activity {
   		languagesEnabled = getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
   				.getStringSet("languagesEnabled", new HashSet<String>(Arrays.asList(new String[] { "ENGLISH" })));
   		
+  		// Find the Views once in OnCreate to save time and not use findViewById later.
+  		spinner = (Spinner) findViewById(R.id.langSpinner);
+  		input = (EditText) findViewById(R.id.inputText);
+  		output = (TextView) findViewById(R.id.results);
+  		listView = (ListView) findViewById(R.id.wordList);
+  		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> lView, View v,
+					int pos, long id) {
+				if (v!=null) {
+					TextView textClicked = (TextView) v.findViewById(R.id.wordTextView);
+	            	startActivity(new Intent(Intent.ACTION_VIEW, 
+	            			Uri.parse("http://google.com/search?q=define:" + textClicked.getText().toString())));
+				}
+        		return true;
+			}
+        });
+  		
+  		
   		//Initialize the database
         dbCreator = new DictionaryDBCreator(getApplicationContext());
         new DBLoaderTask().execute();
@@ -92,12 +122,11 @@ public class StartPage extends Activity {
 	private void setupSpinner() {		
 		String[] values = languagesEnabled.toArray(new String[languagesEnabled.size()]); 
 		
-		Spinner s = (Spinner) findViewById(R.id.langSpinner);
-        s.setAdapter(new ArrayAdapter<String>(this, 
+		spinner.setAdapter(new ArrayAdapter<String>(this, 
         				android.R.layout.simple_spinner_dropdown_item, values));
         
-        s.setSelection(getSelectedLanguage(values));
-        s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+		spinner.setSelection(getSelectedLanguage(values));
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 		        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 		        	languageSelected =  DICTIONARY.valueOf((String) parent.getItemAtPosition(pos));
 		        	//Save change in preferences
@@ -139,20 +168,18 @@ public class StartPage extends Activity {
     /** Called when the search button is pressed.
      * @param view
      */
-    public void onSearchButtonClick(View view) { 
-    	EditText input = (EditText) findViewById(R.id.inputText);
+    public void onSearchButtonClick(View view) {
     	String inLetters = input.getText().toString().trim();
     	
     	if (dbCreator!=null) {
     		Set<String> w = dbCreator.getAllMatchingAnagrams(languageSelected, inLetters);
     		String[] words = w.toArray(new String[w.size()]);
     		
-	        TextView output = (TextView) findViewById(R.id.results);
-	        StringBuilder str = new StringBuilder("Matches (" + words.length + "):\n");
-	        
-	    	for(int i=0; i<words.length; i++)
-	    		str.append(words[i]+"\n"); 
-	    	output.setText(str.toString());
+	    	output.setText("Matches (" + words.length + "):\n");
+	    	
+	    	//UpdateListview
+	    	ListAdapter adapter = new ListAdapter(getApplicationContext(), words);
+	    	listView.setAdapter(adapter);
     	}
     }
     
@@ -225,4 +252,5 @@ public class StartPage extends Activity {
                    public void onClick(DialogInterface dialog, int id) { }
                }).show();
     }
+   
 }

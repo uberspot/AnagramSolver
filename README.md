@@ -3,6 +3,7 @@
 AnagramSolver is an open source android app that finds the words that can be created with some given letters.
 It supports English, Greek, Polish and French. By default only english are enabled.
 You can enable the other languages from the settings button on top.
+TIP: If you long click on a search result it will search for the words definition online. That's why it needs the INTERNET permission.
 
 It works by normalizing both the letters it's searching and the words in the dictionary so that it can compare them fast in a database. Basically it uses an original dictionary where each line is a different word and a sorted version of that dictionary where each line is the same corresponding word but sorted alphabetically, lowercased and stripped from accents. 
 
