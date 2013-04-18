@@ -69,7 +69,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		DICTIONARY[] d = DICTIONARY.values();
 		for(int i=0; i<d.length; i++) {
 			//If it is enabled
-			if(enabledDictionaries.contains(d[i])) {
+			if(hasLoadedDictionary(d[i])) {
 				//And if the table doesn't exist already
 				if(!tableExists(d[i].toString())) {
 					//Create and fill it
@@ -83,6 +83,10 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 			//Clean up after leftover pages in memory
 			db.rawQuery("VACUUM", null);
 		}
+	}
+
+	public boolean hasLoadedDictionary(DICTIONARY d) {
+		return enabledDictionaries.contains(d);
 	}
 	
 	@Override
@@ -136,31 +140,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		db.endTransaction();
 	}
 	
-	/** Returns a Set<String> with all the words that can be formed from the given letters in value and from all the subsets of those letters
-	 * @param dict The dictionary in which to search for matches
-	 * @param value The letters to search for anagrams
-	 * @return
-	 */
-	public Set<String> getAllMatchingAnagrams(DICTIONARY dict, String value) {
-			int numOfSubsets = 1 << value.length(); 
-			Set<String> matchingWords = new HashSet<String>();
-			
-			for (int i = 0; i < numOfSubsets; i++) {
-				int pos = value.length() - 1;
-				int bitmask = i;
 	
-				StringBuilder str = new StringBuilder("");
-				while (bitmask > 0) {
-					if ((bitmask & 1) == 1)
-						str.append(value.charAt(pos));
-					bitmask >>= 1;
-					pos--;
-				}
-				if(str.length()>3)
-					matchingWords.addAll( getMatchingAnagrams(dict, str.toString()) );
-			}
-			return matchingWords;
-	}
 	
 	/** Returns a Set<String> with all the words that can be formed from the given letters in value
 	 * @param dict The dictionary in which to search for matches

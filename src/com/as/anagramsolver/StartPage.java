@@ -42,6 +42,7 @@ public class StartPage extends Activity {
 	private TextView output;
 	private EditText input;
 	private Spinner spinner;
+	private boolean searching;
 	
 	/** An AsyncTask that:
 	 * - Displays a progress dialog
@@ -76,6 +77,68 @@ public class StartPage extends Activity {
         }
     }
 	
+	/** An AsyncTask that searches for anagrams and updates the UI when they're found.
+	 */
+	class DBSearchTask extends AsyncTask<String, Void, String> {
+		private String[] words;
+		
+        @Override protected void onPreExecute() { 
+        	searching = true;
+        }
+
+        protected String doInBackground(String... strings) {
+        	String inLetters = input.getText().toString().trim();
+        	if(!inLetters.isEmpty()) {
+	        	searchAllMatchingAnagrams(languageSelected, inLetters);
+        	} else {
+        		words = new String[0];
+        		publishProgress();
+        	}
+            return "";
+        }
+
+        protected void onPostExecute(String result) {
+	    	searching = false;
+        }
+        
+        protected void onProgressUpdate(Void... values) {
+        	output.setText("Matches (" + words.length + "):\n");
+	    	
+	    	//UpdateListview
+	    	ListAdapter adapter = new ListAdapter(getApplicationContext(), words);
+	    	listView.setAdapter(adapter);
+        }
+        
+        /** Searches for anagrams with all the words that can be formed from the given letters in value and from all the subsets of those letters
+         *  and updates the results view every time it finds a result. 
+    	 * @param dict The dictionary in which to search for matches
+    	 * @param value The letters to search for anagrams
+    	 * @return
+    	 */
+    	private void searchAllMatchingAnagrams(DICTIONARY dict, String value) {
+    			int numOfSubsets = 1 << value.length(); 
+    			Set<String> matchingWords = new HashSet<String>();
+    			
+    			for (int i = 0; i < numOfSubsets; i++) {
+    				int pos = value.length() - 1;
+    				int bitmask = i;
+    	
+    				StringBuilder str = new StringBuilder("");
+    				while (bitmask > 0) {
+    					if ((bitmask & 1) == 1)
+    						str.append(value.charAt(pos));
+    					bitmask >>= 1;
+    					pos--;
+    				}
+    				if(str.length()>3) {
+    					matchingWords.addAll( dbCreator.getMatchingAnagrams(dict, str.toString()) );
+    					words = matchingWords.toArray(new String[matchingWords.size()]);
+    					publishProgress();
+    				}
+    			}
+    	}
+    }
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +153,8 @@ public class StartPage extends Activity {
         // Load enabled languages from preferences
   		languagesEnabled = getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
   				.getStringSet("languagesEnabled", new HashSet<String>(Arrays.asList(new String[] { "ENGLISH" })));
+  		
+  		searching = false; 
   		
   		// Find the Views once in OnCreate to save time and not use findViewById later.
   		spinner = (Spinner) findViewById(R.id.langSpinner);
@@ -169,17 +234,13 @@ public class StartPage extends Activity {
      * @param view
      */
     public void onSearchButtonClick(View view) {
-    	String inLetters = input.getText().toString().trim();
-    	
-    	if (dbCreator!=null) {
-    		Set<String> w = dbCreator.getAllMatchingAnagrams(languageSelected, inLetters);
-    		String[] words = w.toArray(new String[w.size()]);
-    		
-	    	output.setText("Matches (" + words.length + "):\n");
-	    	
-	    	//UpdateListview
-	    	ListAdapter adapter = new ListAdapter(getApplicationContext(), words);
-	    	listView.setAdapter(adapter);
+    	if (searching) 
+    		return;
+    	if (dbCreator!=null && dbCreator.hasLoadedDictionary(languageSelected)) {
+    		Toast.makeText(getApplicationContext(), "Searching. Please wait...", Toast.LENGTH_LONG).show();
+    		new DBSearchTask().execute();
+    	} else {
+    		Toast.makeText(getApplicationContext(), "Selected Dictionary not loaded!", Toast.LENGTH_SHORT).show();
     	}
     }
     
