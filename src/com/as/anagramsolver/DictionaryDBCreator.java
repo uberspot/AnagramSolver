@@ -33,7 +33,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	/** A set containing all the DICTIONARYs that are enabled*/
 	private Set<DICTIONARY> enabledDictionaries; 
 	
-	private static final int DATABASE_VERSION = 22;
+	private static final int DATABASE_VERSION = 23;
 	private static final String DATABASE_NAME = "Dictionaries";
 	private Context context;
 	
@@ -73,7 +73,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 				//And if the table doesn't exist already
 				if(!tableExists(d[i].toString())) {
 					//Create and fill it
-					db.execSQL("CREATE TABLE IF NOT EXISTS " + d[i].toString() + "(word TEXT, aword TEXT);");
+					db.execSQL("CREATE TABLE IF NOT EXISTS " + d[i].toString() + "(word TEXT, aword INTEGER);");
 					fillDictionary(db, dictIDs[i], sdictIDs[i], d[i]);
 				}
 			//Else Drop it from the database so it doesn't take up space
@@ -112,6 +112,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 */
 	private void fillDictionary(SQLiteDatabase db, int rawResourceId, int rawSortedResourceId, DICTIONARY dict) {
     	ContentValues v = new ContentValues();
+    	db.execSQL("PRAGMA read_uncommitted = true;");
 		db.beginTransaction(); 
 		try {
 				BufferedReader in1 = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(rawResourceId), "UTF-8"));
@@ -122,12 +123,13 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 				
 				while(line1!=null && line2!=null) {
 						v.put("word", line1);
-						v.put("aword",  line2); 
+						v.put("aword",  Integer.parseInt(line2));
 						
 						db.insert(dict.toString(), null, v);
 						
 						line1 = in1.readLine();
 						line2 = in2.readLine();
+						v.clear();
 				}
 				db.setTransactionSuccessful();
 		} catch (NotFoundException e) {
@@ -155,7 +157,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	    String deaccented = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase();
 		
 	    // Select "all matches" Query
-	    String selectQuery = "SELECT  * FROM " + dict.toString() + " WHERE aword=\"" +  deaccented +"\"";
+	    String selectQuery = "SELECT  * FROM " + dict.toString() + " WHERE aword=" +  deaccented.hashCode() +"";
 	    Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
 	    
 	    Set<String> matchingWords = new HashSet<String>();
