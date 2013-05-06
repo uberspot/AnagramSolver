@@ -9,4 +9,5 @@
     <string name="choose_enabled_languages">Choose enabled languages</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="search_substrings">Search for substring anagrams</string>
 </resources>

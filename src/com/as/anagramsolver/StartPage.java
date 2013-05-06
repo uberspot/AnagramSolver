@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -42,6 +43,7 @@ public class StartPage extends Activity {
 	private TextView output;
 	private EditText input;
 	private Spinner spinner;
+	private CheckBox searchSubstrings;
 	private boolean searching;
 	
 	/** An AsyncTask that:
@@ -89,7 +91,14 @@ public class StartPage extends Activity {
         protected String doInBackground(String... strings) {
         	String inLetters = input.getText().toString().trim();
         	if(!inLetters.isEmpty()) {
-	        	searchAllMatchingAnagrams(languageSelected, inLetters);
+        		if(searchSubstrings.isChecked()) {
+        			searchAllMatchingAnagrams(languageSelected, inLetters);
+        		} else {
+        			Set<String> matchingWords = new HashSet<String>();
+        			matchingWords.addAll( dbCreator.getMatchingAnagrams(languageSelected, inLetters) );
+					words = matchingWords.toArray(new String[matchingWords.size()]);
+					publishProgress();
+        		}
         	} else {
         		words = new String[0];
         		publishProgress();
@@ -173,6 +182,9 @@ public class StartPage extends Activity {
         		return true;
 			}
         });
+  		searchSubstrings = (CheckBox) findViewById(R.id.search_substrings);
+        searchSubstrings.setChecked(getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+				.getBoolean("searchSubstrings", true));
   		
   		
   		//Initialize the database
@@ -300,6 +312,7 @@ public class StartPage extends Activity {
                 	   		// Save selected language list 
 	                	    SharedPreferences.Editor editor = getSharedPreferences(preferencesName, Context.MODE_PRIVATE).edit();
 		   			  	    editor.putStringSet("languagesEnabled", languagesEnabled);
+		   			  	    editor.putBoolean("searchSubstrings", searchSubstrings.isChecked());
 		   			  	    editor.commit();
 		   			  	    
 		   			  	    // Update spinner language list
