@@ -4,24 +4,23 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.as.anagramsolver.DictionaryDBCreator.DICTIONARY;
 
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
+import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -34,13 +33,14 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidStorageUtils.StorageUtils;
 
-public class StartPage extends Activity {
+public class StartPage extends SherlockActivity {
 
 	private DictionaryDBCreator dbCreator;
-	private final static String preferencesName = "AnagramPrefs";
 	private DICTIONARY languageSelected;
 	private Set<String> languagesEnabled;
+	private StorageUtils storage;
 	
 	/* Views */
 	private ListView listView;
@@ -154,15 +154,14 @@ public class StartPage extends Activity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.start_page);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); 
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        storage = new StorageUtils(getApplicationContext());
         
         // Load previously selected language from preferences
-        languageSelected = DICTIONARY.valueOf(getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
-        								.getString("languageSelected", "ENGLISH"));
+        languageSelected = DICTIONARY.valueOf(storage.getPreference("languageSelected", "ENGLISH"));
         
         // Load enabled languages from preferences
-  		languagesEnabled = getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
-  				.getStringSet("languagesEnabled", new HashSet<String>(Arrays.asList(new String[] { "ENGLISH" })));
+  		languagesEnabled = storage.getPreferenceSet("languagesEnabled", new HashSet<String>(Arrays.asList(new String[] { "ENGLISH" })));
   		
   		searching = false; 
   		
@@ -199,7 +198,7 @@ public class StartPage extends Activity {
 			}
         });
   		searchSubstrings = (CheckBox) findViewById(R.id.search_substrings);
-        searchSubstrings.setChecked(getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+        searchSubstrings.setChecked(PreferenceManager.getDefaultSharedPreferences(this)
 				.getBoolean("searchSubstrings", true));
   		
   		//Initialize the database
@@ -215,14 +214,14 @@ public class StartPage extends Activity {
 		String[] values = languagesEnabled.toArray(new String[languagesEnabled.size()]); 
 		
 		spinner.setAdapter(new ArrayAdapter<String>(this, 
-        				android.R.layout.simple_spinner_dropdown_item, values));
+        				android.R.layout.simple_list_item_1, values));
         
 		spinner.setSelection(getSelectedLanguage(values));
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 		        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 		        	languageSelected =  DICTIONARY.valueOf((String) parent.getItemAtPosition(pos));
 		        	//Save change in preferences
-		        	SharedPreferences.Editor editor = getSharedPreferences(preferencesName, Context.MODE_PRIVATE).edit();
+		        	SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 			  	    editor.putString("languageSelected", languageSelected.toString());
 			  	    editor.commit();
 		        } 
@@ -247,7 +246,7 @@ public class StartPage extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.start_page, menu);
+    	getSupportMenuInflater().inflate(R.menu.start_page, menu);
         return true;
     }
     
@@ -264,7 +263,7 @@ public class StartPage extends Activity {
     		return;
     	if (dbCreator!=null && dbCreator.hasLoadedDictionary(languageSelected)) {
     		String inLetters = input.getText().toString().trim();
-        	if(!inLetters.isEmpty()) {
+        	if(inLetters!=null && !"".equals(inLetters)) {
 	    		Toast.makeText(getApplicationContext(), "Searching. Please wait...", Toast.LENGTH_LONG).show();
 	    		new DBSearchTask().execute();
         	} else {
@@ -278,9 +277,6 @@ public class StartPage extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case R.id.settings_button:
             	showLanguageSelection();
             default:
@@ -329,8 +325,8 @@ public class StartPage extends Activity {
                    @Override
                    public void onClick(DialogInterface dialog, int id) {
                 	   		// Save selected language list 
-	                	    SharedPreferences.Editor editor = getSharedPreferences(preferencesName, Context.MODE_PRIVATE).edit();
-		   			  	    editor.putStringSet("languagesEnabled", languagesEnabled);
+                	   		storage.savePreferenceSet("languagesEnabled", languagesEnabled);
+	                	    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 		   			  	    editor.putBoolean("searchSubstrings", searchSubstrings.isChecked());
 		   			  	    editor.commit();
 		   			  	    
