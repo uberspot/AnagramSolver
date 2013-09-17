@@ -1,12 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	    xmlns:tools="http://schemas.android.com/tools"
 	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
+	    android:layout_height="match_parent"
 	    android:padding="7dp"
 	    android:orientation="vertical"
 	    android:keepScreenOn="true"
 	    tools:context=".StartPage" >
-	    
+
 	    <Spinner
 	       android:id="@+id/langSpinner"
 	       android:layout_width="match_parent"
@@ -45,6 +45,7 @@
 	        android:text="@string/search_words" 
 	        style="@style/ButtonText"
 	        android:background="@drawable/btn_black"/>
+
 	     <TextView
 	        android:id="@+id/results"
 	        android:layout_width="match_parent"
@@ -52,10 +53,11 @@
 	        android:gravity="center_vertical|center_horizontal"
 	        style="@style/textStyle"
 	        android:textIsSelectable="true"/>
+	        
 	     <ListView
 		    android:id="@+id/wordList"
 		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
+		    android:layout_height="match_parent"
 		    android:gravity="center_vertical|center_horizontal" />
 	     
 </LinearLayout>
