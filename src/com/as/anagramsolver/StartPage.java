@@ -17,12 +17,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -44,6 +48,7 @@ public class StartPage extends Activity {
 	private EditText input;
 	private Spinner spinner;
 	private CheckBox searchSubstrings;
+	private Button searchButton;
 	private boolean searching;
 	
 	/** An AsyncTask that:
@@ -90,19 +95,14 @@ public class StartPage extends Activity {
 
         protected String doInBackground(String... strings) {
         	String inLetters = input.getText().toString().trim();
-        	if(!inLetters.isEmpty()) {
-        		if(searchSubstrings.isChecked()) {
-        			searchAllMatchingAnagrams(languageSelected, inLetters);
-        		} else {
-        			Set<String> matchingWords = new HashSet<String>();
-        			matchingWords.addAll( dbCreator.getMatchingAnagrams(languageSelected, inLetters) );
-					words = matchingWords.toArray(new String[matchingWords.size()]);
-					publishProgress();
-        		}
-        	} else {
-        		words = new String[0];
-        		publishProgress();
-        	}
+    		if(searchSubstrings.isChecked()) {
+    			searchAllMatchingAnagrams(languageSelected, inLetters);
+    		} else {
+    			Set<String> matchingWords = new HashSet<String>();
+    			matchingWords.addAll( dbCreator.getMatchingAnagrams(languageSelected, inLetters) );
+				words = matchingWords.toArray(new String[matchingWords.size()]);
+				publishProgress();
+    		}
             return "";
         }
 
@@ -114,8 +114,9 @@ public class StartPage extends Activity {
         	output.setText("Matches (" + words.length + "):\n");
 	    	
 	    	//UpdateListview
-	    	ListAdapter adapter = new ListAdapter(getApplicationContext(), words);
-	    	listView.setAdapter(adapter);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+					R.layout.word_layout, words);
+			listView.setAdapter(adapter);
         }
         
         /** Searches for anagrams with all the words that can be formed from the given letters in value and from all the subsets of those letters
@@ -153,7 +154,7 @@ public class StartPage extends Activity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.start_page);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); 
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); 
         
         // Load previously selected language from preferences
         languageSelected = DICTIONARY.valueOf(getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
@@ -168,6 +169,22 @@ public class StartPage extends Activity {
   		// Find the Views once in OnCreate to save time and not use findViewById later.
   		spinner = (Spinner) findViewById(R.id.langSpinner);
   		input = (EditText) findViewById(R.id.inputText);
+  		input.setOnEditorActionListener(new OnEditorActionListener() {
+  		    @Override
+  		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+  		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+  		        	onSearchButtonClick();
+  		            return true;
+  		        }
+  		        return false;
+  		    }
+  		});
+  		searchButton = (Button) findViewById(R.id.searchButton);
+  		searchButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	onSearchButtonClick();
+            }
+        });
   		output = (TextView) findViewById(R.id.results);
   		listView = (ListView) findViewById(R.id.wordList);
   		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -175,9 +192,8 @@ public class StartPage extends Activity {
 			public boolean onItemLongClick(AdapterView<?> lView, View v,
 					int pos, long id) {
 				if (v!=null) {
-					TextView textClicked = (TextView) v.findViewById(R.id.wordTextView);
 	            	startActivity(new Intent(Intent.ACTION_VIEW, 
-	            			Uri.parse("http://google.com/search?q=define:" + textClicked.getText().toString())));
+	            			Uri.parse("http://google.com/search?q=define:" + ((TextView) v).getText().toString())));
 				}
         		return true;
 			}
@@ -185,7 +201,6 @@ public class StartPage extends Activity {
   		searchSubstrings = (CheckBox) findViewById(R.id.search_substrings);
         searchSubstrings.setChecked(getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
 				.getBoolean("searchSubstrings", true));
-  		
   		
   		//Initialize the database
         dbCreator = new DictionaryDBCreator(getApplicationContext());
@@ -239,18 +254,22 @@ public class StartPage extends Activity {
     @Override
 	public void onDestroy() {
 		super.onDestroy();
-		this.finish();
 	}
     
     /** Called when the search button is pressed.
      * @param view
      */
-    public void onSearchButtonClick(View view) {
+    public void onSearchButtonClick() {
     	if (searching) 
     		return;
     	if (dbCreator!=null && dbCreator.hasLoadedDictionary(languageSelected)) {
-    		Toast.makeText(getApplicationContext(), "Searching. Please wait...", Toast.LENGTH_LONG).show();
-    		new DBSearchTask().execute();
+    		String inLetters = input.getText().toString().trim();
+        	if(!inLetters.isEmpty()) {
+	    		Toast.makeText(getApplicationContext(), "Searching. Please wait...", Toast.LENGTH_LONG).show();
+	    		new DBSearchTask().execute();
+        	} else {
+        		Toast.makeText(getApplicationContext(), "No input given...", Toast.LENGTH_SHORT).show();
+        	}
     	} else {
     		Toast.makeText(getApplicationContext(), "Selected Dictionary not loaded!", Toast.LENGTH_SHORT).show();
     	}
