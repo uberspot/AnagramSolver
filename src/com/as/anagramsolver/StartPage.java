@@ -41,6 +41,7 @@ public class StartPage extends SherlockActivity {
 	private DICTIONARY languageSelected;
 	private Set<String> languagesEnabled;
 	private StorageUtils storage;
+	DBSearchTask dbSearchTask;
 	
 	/* Views */
 	private ListView listView;
@@ -64,8 +65,8 @@ public class StartPage extends SherlockActivity {
         @Override
         protected void onPreExecute() {
         	mProgressDialog = ProgressDialog.show(StartPage.this, 
-        			"Please wait", "Populating sqlite databases. \n" + 
-        			"This might take 3-10 minutes depending on the enabled languages...", true, false);
+        			getString(R.string.please_wait), getString(R.string.populating_dbs) + ". \n" + 
+        			getString(R.string.this_might_take) + "...", true, false);
         }
 
         protected String doInBackground(String... strings) {
@@ -91,6 +92,7 @@ public class StartPage extends SherlockActivity {
 		
         @Override protected void onPreExecute() { 
         	searching = true;
+        	Toast.makeText(getApplicationContext(), getString(R.string.searching_please_wait) + "...", Toast.LENGTH_LONG).show();
         }
 
         protected String doInBackground(String... strings) {
@@ -107,16 +109,23 @@ public class StartPage extends SherlockActivity {
         }
 
         protected void onPostExecute(String result) {
-	    	searching = false;
+        	onCancelled();
         }
         
         protected void onProgressUpdate(Void... values) {
-        	output.setText("Matches (" + words.length + "):\n");
+        	output.setText(getString(R.string.matches) + " (" + words.length + "):\n");
 	    	
 	    	//UpdateListview
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
 					R.layout.word_layout, words);
 			listView.setAdapter(adapter);
+        }
+        
+        @Override
+        protected void onCancelled() {
+        	searching = false;
+	    	searchButton.setText(getString(R.string.search_words));
+	    	Toast.makeText(getApplicationContext(), getString(R.string.search_ended), Toast.LENGTH_LONG).show();
         }
         
         /** Searches for anagrams with all the words that can be formed from the given letters in value and from all the subsets of those letters
@@ -144,6 +153,9 @@ public class StartPage extends SherlockActivity {
     					matchingWords.addAll( dbCreator.getMatchingAnagrams(dict, str.toString()) );
     					words = matchingWords.toArray(new String[matchingWords.size()]);
     					publishProgress();
+    				}
+    				if(isCancelled()) {
+    					break;
     				}
     			}
     	}
@@ -242,7 +254,6 @@ public class StartPage extends SherlockActivity {
 		return 0;
 	}
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -250,27 +261,23 @@ public class StartPage extends SherlockActivity {
         return true;
     }
     
-    @Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
-    
-    /** Called when the search button is pressed.
-     * @param view
-     */
+    /** Called when the search button is pressed. */
     public void onSearchButtonClick() {
-    	if (searching) 
+    	if (searching) {
+    		dbSearchTask.cancel(true);
     		return;
+    	}
     	if (dbCreator!=null && dbCreator.hasLoadedDictionary(languageSelected)) {
     		String inLetters = input.getText().toString().trim();
         	if(inLetters!=null && !"".equals(inLetters)) {
-	    		Toast.makeText(getApplicationContext(), "Searching. Please wait...", Toast.LENGTH_LONG).show();
-	    		new DBSearchTask().execute();
+	    		searchButton.setText(getString(R.string.stop_search));
+	    		dbSearchTask = new DBSearchTask();
+	    		dbSearchTask.execute();
         	} else {
-        		Toast.makeText(getApplicationContext(), "No input given...", Toast.LENGTH_SHORT).show();
+        		Toast.makeText(getApplicationContext(), getString(R.string.no_input_given) + "...", Toast.LENGTH_SHORT).show();
         	}
     	} else {
-    		Toast.makeText(getApplicationContext(), "Selected Dictionary not loaded!", Toast.LENGTH_SHORT).show();
+    		Toast.makeText(getApplicationContext(), getString(R.string.dict_not_loaded), Toast.LENGTH_SHORT).show();
     	}
     }
     

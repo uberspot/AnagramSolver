@@ -10,4 +10,14 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="search_substrings">Search for substring anagrams</string>
+    <string name="stop_search">Stop search!</string>
+    <string name="search_ended">Search ended</string>
+    <string name="matches">Matches</string>
+    <string name="no_input_given">No input given</string>
+    <string name="dict_not_loaded">Selected Dictionary not loaded</string>
+    <string name="searching_please_wait">Searching. Please wait</string>
+    <string name="please_wait">Please wait</string>
+    <string name="populating_dbs">Populating sqlite databases</string>
+    <string name="this_might_take">This might take 3 to 10 minutes depending on the enabled languages</string>
+    
 </resources>
