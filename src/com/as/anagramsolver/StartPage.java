@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -270,6 +272,7 @@ public class StartPage extends SherlockActivity {
     	if (dbCreator!=null && dbCreator.hasLoadedDictionary(languageSelected)) {
     		String inLetters = input.getText().toString().trim();
         	if(inLetters!=null && !"".equals(inLetters)) {
+        		hideSoftKeyboard();
 	    		searchButton.setText(getString(R.string.stop_search));
 	    		dbSearchTask = new DBSearchTask();
 	    		dbSearchTask.execute();
@@ -277,8 +280,16 @@ public class StartPage extends SherlockActivity {
         		Toast.makeText(getApplicationContext(), getString(R.string.no_input_given) + "...", Toast.LENGTH_SHORT).show();
         	}
     	} else {
+    		hideSoftKeyboard();
     		Toast.makeText(getApplicationContext(), getString(R.string.dict_not_loaded), Toast.LENGTH_SHORT).show();
     	}
+    }
+    
+    private void hideSoftKeyboard(){
+        if(getCurrentFocus()!=null && getCurrentFocus() instanceof EditText){
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+        }
     }
     
     @Override
