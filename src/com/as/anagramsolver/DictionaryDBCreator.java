@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -21,36 +23,39 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DictionaryDBCreator extends SQLiteOpenHelper {
 
 	/** The list of dictionaries available */
-	public enum DICTIONARY {ENGLISH, GREEK, POLISH, FRENCH}
+	public static final ArrayList<String> DICTIONARIES = new ArrayList<String>(
+			Arrays.asList("ENGLISH", "GREEK", "POLISH", "FRENCH", "GERMAN"));
+	
+	public static final String DEFAULT_DICTIONARY = DICTIONARIES.get(0);
 	
 	/** An array containing the corresponding raw dictionary file for each language of the enumeration. */
-	private final int[] dictIDs={R.raw.en_us, R.raw.el_gr, R.raw.pl_pl, R.raw.fr_fr},
+	private final int[] dictIDs={R.raw.en_us, R.raw.el_gr, R.raw.pl_pl, R.raw.fr_fr, R.raw.de_de},
 						/** An array containing the corresponding raw sorted dictionary file. 
 						 * Each word in that file is the same as the original but with its characters 
 						 * sorted alphabetically, lowercased and normalized(no accents etc) */
-					    sdictIDs={R.raw.en_us_sorted, R.raw.el_gr_sorted, R.raw.pl_pl_sorted, R.raw.fr_fr_sorted};
+					    sdictIDs={R.raw.en_us_sorted, R.raw.el_gr_sorted, R.raw.pl_pl_sorted, R.raw.fr_fr_sorted, R.raw.de_de_sorted};
 	
 	/** A set containing all the DICTIONARYs that are enabled*/
-	private Set<DICTIONARY> enabledDictionaries; 
+	private Set<String> enabledDictionaries; 
 	
-	private static final int DATABASE_VERSION = 23;
+	private static final int DATABASE_VERSION = 25;
 	private static final String DATABASE_NAME = "Dictionaries";
 	private Context context;
 	
 	/** Pattern used for removing diacritical marks like accents as to normalize given words to a simpler form */
 	private Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	
-	public DictionaryDBCreator(Context context, Set<DICTIONARY> enabledDictionaries) {
+	public DictionaryDBCreator(Context context, Set<String> enabledDictionaries) {
 	    this(context, DATABASE_NAME, null, DATABASE_VERSION, enabledDictionaries);
 	}
 	
 	public DictionaryDBCreator(Context context) {
 	    this(context, DATABASE_NAME, null, DATABASE_VERSION, 
-	    		new HashSet<DICTIONARY>());
+	    		new HashSet<String>());
 	}
 	
 	public DictionaryDBCreator(Context context, String name,
-			CursorFactory factory, int version, Set<DICTIONARY> enabledDictionaries) {
+			CursorFactory factory, int version, Set<String> enabledDictionaries) {
 		super(context, name, factory, version);
 		this.context = context;
 		this.setEnabledDictionaries(enabledDictionaries);
@@ -58,42 +63,40 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(final SQLiteDatabase db) {
-		createTables(db);
-	}
-
-	/** Based on the enabledDictionaries list it fills the tables with words.
-	 * @param db
-	 */
-	public void createTables(final SQLiteDatabase db) {
 		//For each available language
-		DICTIONARY[] d = DICTIONARY.values();
-		for(int i=0; i<d.length; i++) {
-			//If it is enabled
-			if(hasLoadedDictionary(d[i])) {
-				//And if the table doesn't exist already
-				if(!tableExists(d[i].toString())) {
-					//Create and fill it
-					db.execSQL("CREATE TABLE IF NOT EXISTS " + d[i].toString() + "(word TEXT, aword INTEGER);");
-					fillDictionary(db, dictIDs[i], sdictIDs[i], d[i]);
-				}
-			//Else Drop it from the database so it doesn't take up space
-			} else {
-				db.execSQL("DROP TABLE IF EXISTS " + d[i].toString() + ";");
-			}
-			//Clean up after leftover pages in memory
-			db.rawQuery("VACUUM", null);
+		for(String dict: DICTIONARIES) {
+			createTable(db, dict);
 		}
 	}
 
-	public boolean hasLoadedDictionary(DICTIONARY d) {
+	public void createTable(final SQLiteDatabase db, String dict) {
+		//If it is enabled
+		if(hasLoadedDictionary(dict)) {
+			int position = DICTIONARIES.indexOf(dict);
+			
+			//And if the table doesn't exist already
+			if(!tableExists(db, dict)) {
+				//Create and fill it
+				db.execSQL("CREATE TABLE IF NOT EXISTS " + dict + "(word TEXT, aword INTEGER);");
+				fillDictionary(db, dictIDs[position], sdictIDs[position], dict);
+			}
+		//Else Drop it from the database so it doesn't take up space
+		} else {
+			db.execSQL("DROP TABLE IF EXISTS " + dict + ";");
+		}
+		//Clean up after leftover pages in memory
+		db.rawQuery("VACUUM", null);
+	}
+
+	public boolean hasLoadedDictionary(String d) {
 		return enabledDictionaries.contains(d);
 	}
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older tables if existed
-		for(DICTIONARY dictionary : DICTIONARY.values()) {
-			db.execSQL("DROP TABLE IF EXISTS " + dictionary.toString());
+		for(String dictionary : DICTIONARIES) {
+			db.execSQL("DROP TABLE IF EXISTS " + dictionary);
 		}
         // Create tables again
         onCreate(db);
@@ -110,7 +113,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @param rawSortedResourceId the file containing each equivalent word of the dictionary sorted and normalized
 	 * @param dict the dictionary for which to update the table
 	 */
-	private void fillDictionary(SQLiteDatabase db, int rawResourceId, int rawSortedResourceId, DICTIONARY dict) {
+	private void fillDictionary(SQLiteDatabase db, int rawResourceId, int rawSortedResourceId, String dict) {
     	ContentValues v = new ContentValues();
     	db.execSQL("PRAGMA read_uncommitted = true;");
 		db.beginTransaction(); 
@@ -149,7 +152,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @param value The letters to search for anagrams
 	 * @return
 	 */
-	public Set<String> getMatchingAnagrams(DICTIONARY dict, String value) {
+	public Set<String> getMatchingAnagrams(String dict, String value) {
 		char[] l = value.toCharArray();
 		java.util.Arrays.sort(l);
 		
@@ -157,7 +160,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	    String deaccented = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase();
 		
 	    // Select "all matches" Query
-	    String selectQuery = "SELECT  * FROM " + dict.toString() + " WHERE aword=" +  deaccented.hashCode() +"";
+	    String selectQuery = "SELECT  * FROM " + dict + " WHERE aword=" +  deaccented.hashCode() +"";
 	    Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
 	    
 	    Set<String> matchingWords = new HashSet<String>();
@@ -176,19 +179,31 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @param tableName
 	 * @return
 	 */
-	public boolean tableExists(String tableName) {
-	    return getReadableDatabase()
-	    		.rawQuery("SELECT * FROM sqlite_master WHERE name ='" + tableName + "' and type='table' ", null)
+	public boolean tableExists(SQLiteDatabase db, String tableName) {
+	    return db.rawQuery("SELECT * FROM sqlite_master WHERE name ='" + tableName + "' and type='table' ", null)
 	    		.moveToFirst();
 	}
 
-	public Set<DICTIONARY> getEnabledDictionaries() {
+	public Set<String> getEnabledDictionaries() {
 		return enabledDictionaries;
 	}
+	
+	public void addEnabledDictionary(String dict) {
+		if(enabledDictionaries!=null)
+			enabledDictionaries.add(dict);
+	}
+	
+	public void removeEnabledDictionary(String dict) {
+		if(enabledDictionaries!=null)
+			enabledDictionaries.remove(dict);
+	}
 
-	public void setEnabledDictionaries(Set<DICTIONARY> enabledDictionaries) {
-		this.enabledDictionaries = new HashSet<DICTIONARY>();
-		for(DICTIONARY dict: enabledDictionaries) {
+	public void setEnabledDictionaries(Set<String> enabledDictionaries) {
+		if(this.enabledDictionaries != null)
+			this.enabledDictionaries.clear();
+		else
+			this.enabledDictionaries = new HashSet<String>();
+		for(String dict: enabledDictionaries) {
 			this.enabledDictionaries.add(dict);
 		}
 	}

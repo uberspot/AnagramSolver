@@ -14,6 +14,7 @@ public class sortDictionaries {
        transformDictionary("en_us");
        transformDictionary("fr_fr");
        transformDictionary("pl_pl");
+       transformDictionary("de_de");
     }
     
     public static void transformDictionary(String fileName) {

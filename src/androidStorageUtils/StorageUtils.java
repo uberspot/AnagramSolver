@@ -42,6 +42,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
@@ -153,7 +154,7 @@ public class StorageUtils extends ContextWrapper {
 			e.printStackTrace(System.out);
 		} finally {
 			if(output!=null)
-				try { output.close(); } catch (IOException e) { }
+				try { output.close(); } catch (IOException e) { e.printStackTrace(System.out); }
 		}
 		return false;
 	}
@@ -174,7 +175,7 @@ public class StorageUtils extends ContextWrapper {
 			e.printStackTrace(System.out);
 		} finally {
 			if(input!=null)
-				try { input.close(); } catch (IOException e) { }
+				try { input.close(); } catch (IOException e) { e.printStackTrace(System.out); }
 		}
 		return obj;
 	}
@@ -207,7 +208,7 @@ public class StorageUtils extends ContextWrapper {
 	public boolean addPreferenceToSet(String valueName, String value) {
 	      Set<String> currentSet = getPreferenceSet(valueName, new HashSet<String>());
 	      currentSet.add(value);
-	      return saveObjectToInternalStorage(stringSetToJsonString(currentSet), valueName);
+	      return savePreferenceSet(valueName, currentSet);
 	}
 	
 	/** Saves a preference set in the storage in a given StringSet
@@ -216,9 +217,7 @@ public class StorageUtils extends ContextWrapper {
 	 * @return true if it was saved successfully, false otherwise
 	 */
 	public boolean savePreferenceSet(String valueName, Set<String> set) {
-	      Set<String> currentSet = getPreferenceSet(valueName, new HashSet<String>());
-	      currentSet.addAll(set); 
-	      return saveObjectToInternalStorage(stringSetToJsonString(currentSet), valueName);
+	      return savePreference(valueName, stringSetToJsonString(set));
 	}
 	
 	/** Loads a preference StringSet from the storage
@@ -226,7 +225,7 @@ public class StorageUtils extends ContextWrapper {
 	 * @return a string containing the preference
 	 */
 	public Set<String> getPreferenceSet(String valueName, Set<String> defValue) {
-		  Object setString =  loadObjectFromInternalStorage(valueName);
+		  Object setString =  getPreference(valueName, stringSetToJsonString(defValue));
 		  if(setString!=null) {
 			  return jsonStringToStringSet(setString.toString());  
 		  }
@@ -241,7 +240,7 @@ public class StorageUtils extends ContextWrapper {
 	public boolean removePreferenceFromSet(String valueName, String value) {
 		Set<String> currentSet = getPreferenceSet(valueName, new HashSet<String>());
 		currentSet.remove(value);
-		return saveObjectToInternalStorage(stringSetToJsonString(currentSet), valueName);
+		return savePreferenceSet(valueName, currentSet);
 	}
 
 	/** Save the given object to a file in external storage
@@ -271,7 +270,7 @@ public class StorageUtils extends ContextWrapper {
 			e.printStackTrace(System.out);
 		} finally {
 			if(output!=null)
-				try { output.close(); } catch (IOException e) { }
+				try { output.close(); } catch (IOException e) { e.printStackTrace(System.out); }
 		}
 		return false;
 	}
@@ -294,7 +293,7 @@ public class StorageUtils extends ContextWrapper {
 			e.printStackTrace(System.out);
 		} finally {
 			if(input!=null)
-				try { input.close(); } catch (IOException e) { }
+				try { input.close(); } catch (IOException e) { e.printStackTrace(System.out); }
 		}
 		return obj;
 	}
@@ -407,5 +406,35 @@ public class StorageUtils extends ContextWrapper {
 		    e.printStackTrace();
 		}
 		return setString;
+	}
+	
+	public File getPictureDirectory(String albumName) {
+		return new File(
+				    Environment.getExternalStoragePublicDirectory(
+				        Environment.DIRECTORY_PICTURES
+				    ), albumName
+			    );
+	}
+	
+	/** Saves a bitmap as png in the pictures directory of the device
+	 * @param albumName 
+	 * @param fileName the filename of the image without the extension
+	 * @param img 
+	 * @return true if it was saved successfully, false otherwise
+	 */
+	public boolean saveBitmapAsPNG(String albumName, String fileName, Bitmap img) {
+		try {
+			File dir = new File(getPictureDirectory(albumName), fileName);
+			if (!dir.exists())
+				dir.mkdirs();
+			File file = new File(dir, fileName + ".png");
+			FileOutputStream out = new FileOutputStream(file);
+			img.compress(Bitmap.CompressFormat.PNG, 90, out);
+			out.close();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
