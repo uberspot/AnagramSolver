@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="rn:oasis:names:tc:xliff:document:1.2">
 
     <string name="app_name">AnagramSolver</string>
     <string name="action_settings">Settings</string>
@@ -12,12 +12,11 @@
     <string name="search_substrings">Search for substring anagrams</string>
     <string name="stop_search">Stop search!</string>
     <string name="search_ended">Search ended</string>
-    <string name="matches">Matches</string>
-    <string name="no_input_given">No input given</string>
+    <string name="matches">Matches <xliff:g id="num" example="10" >(%1$s):\n</xliff:g></string>
+    <string name="no_input_given">No input given<xliff:g>&#8230;</xliff:g></string>
     <string name="dict_not_loaded">Selected Dictionary not loaded</string>
-    <string name="searching_please_wait">Searching. Please wait</string>
+    <string name="searching_please_wait">Searching. Please wait<xliff:g>&#8230;</xliff:g> </string>
     <string name="please_wait">Please wait</string>
-    <string name="populating_dbs">Populating sqlite databases</string>
-    <string name="this_might_take">This might take 3 to 10 minutes depending on the enabled languages</string>
+    <string name="populating_dbs">Populating <xliff:g id="name" example="language" >%1$s</xliff:g> database. \nThis might take 3 to 10 minutes.</string>
     
 </resources>

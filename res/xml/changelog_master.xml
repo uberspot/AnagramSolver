@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog>
+  <release version="2.0" versioncode="11" >
+      <change>Added changelog</change>
+      <change>Added support for android 4.4</change>
+      <change>Added German dictionary</change>
+      <change>Cleaned up code a lot and fixed various minor bugs</change>
+  </release>
+  <release version="1.9" versioncode="10" >
+      <change>Made compatible with android 2.2 + (added sherlockactionbar)</change>
+	  <change>Added "stop search" button</change>
+	  <change>Minor fixes + code cleanup</change>
+	  <change>Keyboard hides automatically when search begins</change>
+  </release>
+</changelog>
