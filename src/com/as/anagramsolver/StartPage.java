@@ -38,7 +38,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidStorageUtils.StorageUtils;
+import com.uberspot.storageutils.StorageUtils;
 
 public class StartPage extends SherlockActivity {
 

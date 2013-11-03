@@ -4,3 +4,6 @@
 [submodule "external/actionbarsherlock"]
 	path = external/actionbarsherlock
 	url = git@github.com:JakeWharton/ActionBarSherlock.git
+[submodule "external/storageutils"]
+	path = external/storageutils
+	url = git@github.com:uberspot/AndroidStorageUtils.git
