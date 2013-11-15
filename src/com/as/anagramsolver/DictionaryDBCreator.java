@@ -159,8 +159,13 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	    String deaccented = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase();
 		
 	    // Select "all matches" Query
-	    String selectQuery = "SELECT  * FROM " + dict + " WHERE aword=" +  deaccented.hashCode() +"";
-	    Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
+	    String selectQuery = "SELECT word FROM " + dict + " WHERE aword=" +  deaccented.hashCode() +"";
+	    
+		return rawQueryResults(selectQuery);
+	}
+
+	public Set<String> rawQueryResults(String selectQuery) {
+		Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
 	    
 	    Set<String> matchingWords = new HashSet<String>();
 	    
@@ -172,7 +177,6 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		}
 		
 		cursor.close();
-		
 		return matchingWords;
 	}
 	

@@ -1,6 +1,7 @@
 package com.as.anagramsolver;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -135,6 +136,11 @@ public class StartPage extends SherlockActivity {
 	    	//UpdateListview
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
 					R.layout.word_layout, words);
+			adapter.sort(new Comparator<String>(){
+				@Override
+				public int compare(String str1, String str2) {
+					return str1.compareTo(str2);
+				}});
 			listView.setAdapter(adapter);
         }
         
