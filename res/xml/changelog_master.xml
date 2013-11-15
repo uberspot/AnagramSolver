@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+  <release version="2.05" versioncode="12" >
+      <change>Added search for words based on a prefix/suffix with prefix* of *suffix or prefix*suffix</change>
+      <change>Results are now displayed alphabetically</change>
+      <change>Fixed some minor code issues</change>
+  </release>
   <release version="2.0" versioncode="11" >
       <change>Added changelog</change>
       <change>Added support for android 4.4</change>
