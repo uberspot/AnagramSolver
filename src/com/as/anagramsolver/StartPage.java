@@ -115,13 +115,21 @@ public class StartPage extends SherlockActivity {
 
         protected String doInBackground(String... strings) {
         	String inLetters = input.getText().toString().trim();
-    		if(searchSubstrings.isChecked()) {
-    			searchAllMatchingAnagrams(languageSelected, inLetters);
-    		} else {
-    			Set<String> matchingWords = new HashSet<String>();
-    			matchingWords.addAll( dbCreator.getMatchingAnagrams(languageSelected, inLetters) );
-				words = matchingWords.toArray(new String[matchingWords.size()]);
+        	if(inLetters.contains("*") && inLetters.matches("[^!@#$%`~;&\\(\\)\\[\\]{}.,<>]+")) {
+        		inLetters = inLetters.replace('*', '%');
+        		Set<String> starWords = new HashSet<String>();
+        		starWords.addAll( dbCreator.getStarMatches(languageSelected, inLetters) );
+				words = starWords.toArray(new String[starWords.size()]);
 				publishProgress();
+        	} else {
+	    		if(searchSubstrings.isChecked()) {
+	    			searchAllMatchingAnagrams(languageSelected, inLetters);
+	    		} else {
+	    			Set<String> matchingWords = new HashSet<String>();
+	    			matchingWords.addAll( dbCreator.getMatchingAnagrams(languageSelected, inLetters) );
+					words = matchingWords.toArray(new String[matchingWords.size()]);
+					publishProgress();
+	    		}
     		}
             return "";
         }

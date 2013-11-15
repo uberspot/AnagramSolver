@@ -159,8 +159,21 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	    String deaccented = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase();
 		
 	    // Select "all matches" Query
-	    String selectQuery = "SELECT word FROM " + dict + " WHERE aword=" +  deaccented.hashCode() +"";
+	    String selectQuery = "SELECT word FROM " + dict + " WHERE aword=" +  deaccented.hashCode();
 	    
+		return rawQueryResults(selectQuery);
+	}
+	
+	/** Returns a Set<String> with all the words that are like the regex word* or *word or wo*rd. 
+	 * @param dict The dictionary in which to search for matches
+	 * @param value The word to search for. Looks like word* or *word or wo*rd 
+	 * @return
+	 */
+	public Set<String> getStarMatches(String dict, String word) {
+		if(word == null || word.isEmpty())
+			return new HashSet<String>();
+	    // Select "all matches" Query
+	    String selectQuery = "SELECT word FROM " + dict + " WHERE word LIKE \'" +  word + "\'";
 		return rawQueryResults(selectQuery);
 	}
 
