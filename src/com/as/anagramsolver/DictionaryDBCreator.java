@@ -24,26 +24,26 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 
 	/** The list of dictionaries available */
 	public static final ArrayList<String> DICTIONARIES = new ArrayList<String>(
-			Arrays.asList("ENGLISH", "GREEK", "POLISH", "FRENCH", "GERMAN"));
+			Arrays.asList("ENGLISH", "GREEK", "POLISH", "FRENCH", "GERMAN")    );
 	
 	public static final String DEFAULT_DICTIONARY = DICTIONARIES.get(0);
 	
 	/** An array containing the corresponding raw dictionary file for each language of the enumeration. */
-	private final int[] dictIDs={R.raw.en_us, R.raw.el_gr, R.raw.pl_pl, R.raw.fr_fr, R.raw.de_de},
+	private static final int[] dictIDs = { R.raw.en_us, R.raw.el_gr, R.raw.pl_pl, R.raw.fr_fr, R.raw.de_de },
 						/** An array containing the corresponding raw sorted dictionary file. 
 						 * Each word in that file is the same as the original but with its characters 
 						 * sorted alphabetically, lowercased and normalized(no accents etc) */
-					    sdictIDs={R.raw.en_us_sorted, R.raw.el_gr_sorted, R.raw.pl_pl_sorted, R.raw.fr_fr_sorted, R.raw.de_de_sorted};
+					    sdictIDs = { R.raw.en_us_sorted, R.raw.el_gr_sorted, R.raw.pl_pl_sorted, R.raw.fr_fr_sorted, R.raw.de_de_sorted };
 	
 	/** A set containing all the DICTIONARYs that are enabled*/
 	private Set<String> enabledDictionaries; 
 	
-	private static final int DATABASE_VERSION = 25;
+	private static final int DATABASE_VERSION = 26;
 	private static final String DATABASE_NAME = "Dictionaries";
 	private Context context;
 	
 	/** Pattern used for removing diacritical marks like accents as to normalize given words to a simpler form */
-	private Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+	private Pattern pattern;
 	
 	public DictionaryDBCreator(Context context, Set<String> enabledDictionaries) {
 	    this(context, DATABASE_NAME, null, DATABASE_VERSION, enabledDictionaries);
@@ -59,6 +59,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		super(context, name, factory, version);
 		this.context = context;
 		this.setEnabledDictionaries(enabledDictionaries);
+		pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	}
 
 	@Override
@@ -145,8 +146,6 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		db.endTransaction();
 	}
 	
-	
-	
 	/** Returns a Set<String> with all the words that can be formed from the given letters in value
 	 * @param dict The dictionary in which to search for matches
 	 * @param value The letters to search for anagrams
@@ -166,12 +165,14 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	    Set<String> matchingWords = new HashSet<String>();
 	    
 		// looping through all results and adding to list
-		if (cursor.moveToFirst()) {
+		if (cursor!=null && cursor.moveToFirst()) {
 			do {
 				matchingWords.add(cursor.getString(0));
 			} while (cursor.moveToNext());
 		}
-
+		
+		cursor.close();
+		
 		return matchingWords;
 	}
 	
@@ -180,8 +181,10 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @return
 	 */
 	public boolean tableExists(SQLiteDatabase db, String tableName) {
-	    return db.rawQuery("SELECT * FROM sqlite_master WHERE name ='" + tableName + "' and type='table' ", null)
-	    		.moveToFirst();
+		Cursor c = db.rawQuery("SELECT * FROM sqlite_master WHERE name ='" + tableName + "' and type='table' ", null);
+		boolean exists = c.moveToFirst();
+		c.close();
+	    return exists;
 	}
 
 	public Set<String> getEnabledDictionaries() {
