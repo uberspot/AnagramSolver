@@ -1,7 +1,7 @@
 #AnagramSolver
 
 AnagramSolver is an open source android app that finds the words that can be created with some given letters.
-It supports English, Greek, Polish and French. By default only english are enabled.
+It supports English, Greek, German, Italian, Spanich, Polish and French. By default only english are enabled.
 You can enable the other languages from the settings button on top.
 TIP: If you long click on a search result it will search for the words definition online. That's why it needs the INTERNET permission.
 
@@ -11,6 +11,7 @@ For example if you search an anagram for the letters "nsake" it will convert it 
 
 This of course results in a bit bigger database (depending on the dictionaries size). Alternatively radix tries could be used to load each dictionary and its normalized version but when i tested some implementations of radix tries my device would eventually run out of memory for the app. So a database was a 'lighter' choice. I also tested a solution where i copied the databases on the first run instead of creating them from scratch but that took double the storage space in the device and the speed improvement on the first run wasn't that significant.
 
+All the dictionaries used in the app were taken from publicly available OpenOffice spelling extensions. Hope that's ok. :)
 
 ##Screenshots
 
