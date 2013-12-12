@@ -24,21 +24,21 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 
 	/** The list of dictionaries available */
 	public static final ArrayList<String> DICTIONARIES = new ArrayList<String>(
-			Arrays.asList("ENGLISH", "GREEK", "POLISH", "FRENCH", "GERMAN")    );
+			Arrays.asList("English", "Greek", "Polish", "French", "German", "Spanish", "Italian")    );
 	
 	public static final String DEFAULT_DICTIONARY = DICTIONARIES.get(0);
 	
 	/** An array containing the corresponding raw dictionary file for each language of the enumeration. */
-	private static final int[] dictIDs = { R.raw.en_us, R.raw.el_gr, R.raw.pl_pl, R.raw.fr_fr, R.raw.de_de },
+	private static final int[] dictIDs = { R.raw.en_us, R.raw.el_gr, R.raw.pl_pl, R.raw.fr_fr, R.raw.de_de, R.raw.es_es, R.raw.it_it},
 						/** An array containing the corresponding raw sorted dictionary file. 
 						 * Each word in that file is the same as the original but with its characters 
 						 * sorted alphabetically, lowercased and normalized(no accents etc) */
-					    sdictIDs = { R.raw.en_us_sorted, R.raw.el_gr_sorted, R.raw.pl_pl_sorted, R.raw.fr_fr_sorted, R.raw.de_de_sorted };
+					    sdictIDs = { R.raw.en_us_sorted, R.raw.el_gr_sorted, R.raw.pl_pl_sorted, R.raw.fr_fr_sorted, R.raw.de_de_sorted, R.raw.es_es_sorted, R.raw.it_it_sorted};
 	
 	/** A set containing all the DICTIONARYs that are enabled*/
 	private Set<String> enabledDictionaries; 
 	
-	private static final int DATABASE_VERSION = 26;
+	private static final int DATABASE_VERSION = 27;
 	private static final String DATABASE_NAME = "Dictionaries";
 	private Context context;
 	
@@ -73,6 +73,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	public void createTable(final SQLiteDatabase db, String dict) {
 		//If it is enabled
 		if(hasLoadedDictionary(dict)) {
+			dict = dict.substring(0, 1).toUpperCase() + dict.substring(1).toLowerCase();
 			int position = DICTIONARIES.indexOf(dict);
 			
 			//And if the table doesn't exist already

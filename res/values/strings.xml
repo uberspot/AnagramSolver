@@ -17,6 +17,6 @@
     <string name="dict_not_loaded">Selected Dictionary not loaded</string>
     <string name="searching_please_wait">Searching. Please wait<xliff:g>&#8230;</xliff:g> </string>
     <string name="please_wait">Please wait</string>
-    <string name="populating_dbs">Populating <xliff:g id="name" example="language" >%1$s</xliff:g> database. \nThis might take 3 to 10 minutes.</string>
+    <string name="populating_dbs">Populating <xliff:g id="name" example="language" >%1$s</xliff:g> database.\nThis might take 3 to 10 minutes.</string>
     
 </resources>

@@ -9,12 +9,11 @@ import java.util.regex.Pattern;
  */
 public class sortDictionaries {
 
+    private static final String[] langs = {"de_de", "el_gr", "en_us", "fr_fr", "pl_pl", "es_es", "it_it"};
+    
     public static void main(String[] args) {
-       transformDictionary("el_gr");
-       transformDictionary("en_us");
-       transformDictionary("fr_fr");
-       transformDictionary("pl_pl");
-       transformDictionary("de_de");
+        for(String lang: langs)
+            transformDictionary(lang);
     }
     
     public static void transformDictionary(String fileName) {

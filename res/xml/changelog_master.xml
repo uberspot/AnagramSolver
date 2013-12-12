@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+  <release version="2.1" versioncode="13" >
+      <change>Minor changes to comply more with play stores "design for tablets" policy</change>
+      <change>Added Italian and Spanish dictionaries</change>
+      <change>Added Greek translation of app</change>
+      <change>If you have any crashes try clearing the apps data first and then opening it again</change>
+  </release>
   <release version="2.05" versioncode="12" >
       <change>Added search for words based on a prefix/suffix with prefix* of *suffix or prefix*suffix</change>
       <change>Results are now displayed alphabetically</change>
