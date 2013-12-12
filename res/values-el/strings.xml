@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="rn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_name">AnagramSolver</string>
+    <string name="action_settings">Ρυθμίσεις</string>
+    <string name="input">Εισαγωγή:</string>
+    <string name="search_words">Αναζήτηση λέξεων!</string>
+	<string name="choose_language">Επιλογή γλώσσας</string>
+    <string name="choose_enabled_languages">Επιλέξτε ενεργές γλώσσες</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Ακύρωση</string>
+    <string name="search_substrings">Αναζήτηση αναγραμματισμών και για υποσύνολα γραμμάτων</string>
+    <string name="stop_search">Παύση αναζήτησης!</string>
+    <string name="search_ended">Η αναζήτηση τελείωσε</string>
+    <string name="matches">Αποτελέσματα <xliff:g id="num" example="10" >(%1$s):\n</xliff:g></string>
+    <string name="no_input_given">Δεν δώθηκαν γράμματα<xliff:g>&#8230;</xliff:g></string>
+    <string name="dict_not_loaded">Το επιλεγμένο λεξικό δεν έχει φορτωθεί</string>
+    <string name="searching_please_wait">Αναζήτηση. Παρακαλώ περιμένετε<xliff:g>&#8230;</xliff:g> </string>
+    <string name="please_wait">Παρακαλώ περιμένετε</string>
+    <string name="populating_dbs">Δημιουργία βάσης για <xliff:g id="name" example="language" >%1$s</xliff:g>.\n Μπορεί να πάρει απο 3 μέχρι 10 λεπτά.</string>
+    
+</resources>
