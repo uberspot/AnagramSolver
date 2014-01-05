@@ -212,7 +212,7 @@ public class StartPage extends SherlockActivity {
         // Load previously selected language from preferences
         languageSelected = storage.getPreference(LANG_SEL_KEY, DictionaryDBCreator.DEFAULT_DICTIONARY);
        
-        // TEMPORARY till all the prefs are save in the correct format
+        // TEMPORARY till all the prefs are saved in the correct format
         languageSelected = languageSelected.substring(0, 1).toUpperCase() + languageSelected.substring(1).toLowerCase();
         storage.savePreference(LANG_SEL_KEY, languageSelected);
         
@@ -264,20 +264,20 @@ public class StartPage extends SherlockActivity {
         dbCreator = new DictionaryDBCreator(getApplicationContext());
         // Load enabled languages from preferences
         
-        
   		Set<String> enabledLangs = storage.getPreferenceSet(LANG_ENABLED_KEY, 
 					new HashSet<String>(Arrays.asList(new String[] { DictionaryDBCreator.DEFAULT_DICTIONARY })));
   		
   		// TEMPORARY to convert all prefs to the same format
-  		Set<String> correctLans = new HashSet<String>();
+  		Set<String> correctLangs = new HashSet<String>();
   		for(String l : enabledLangs) {
   			l = l.substring(0, 1).toUpperCase() + l.substring(1).toLowerCase();
-  			correctLans.add(l);
+  			correctLangs.add(l);
   		}
-  		storage.savePreferenceSet(LANG_ENABLED_KEY, correctLans);
+  		storage.savePreferenceSet(LANG_ENABLED_KEY, correctLangs);
   		// END TEMPORARY
   		
-  		dbCreator.setEnabledDictionaries(correctLans); // Change to enabledLangs later on
+  		dbCreator.setEnabledDictionaries(correctLangs); // Change to enabledLangs later on
+
         new DBLoaderTask().execute();
 		
 		setupSpinner(); 

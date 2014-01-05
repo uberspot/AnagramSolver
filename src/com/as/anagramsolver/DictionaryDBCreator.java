@@ -199,7 +199,7 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @return
 	 */
 	public boolean tableExists(SQLiteDatabase db, String tableName) {
-		Cursor c = db.rawQuery("SELECT * FROM sqlite_master WHERE name ='" + tableName + "' and type='table' ", null);
+		Cursor c = db.rawQuery("SELECT * FROM sqlite_master WHERE UPPER(name) LIKE UPPER('" + tableName + "') and type='table' ", null);
 		boolean exists = c.moveToFirst();
 		c.close();
 	    return exists;
@@ -210,12 +210,12 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	}
 	
 	public void addEnabledDictionary(String dict) {
-		if(enabledDictionaries!=null)
+		if(enabledDictionaries != null)
 			enabledDictionaries.add(dict);
 	}
 	
 	public void removeEnabledDictionary(String dict) {
-		if(enabledDictionaries!=null)
+		if(enabledDictionaries != null)
 			enabledDictionaries.remove(dict);
 	}
 
@@ -224,8 +224,6 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 			this.enabledDictionaries.clear();
 		else
 			this.enabledDictionaries = new HashSet<String>();
-		for(String dict: enabledDictionaries) {
-			this.enabledDictionaries.add(dict);
-		}
+		this.enabledDictionaries.addAll(enabledDictionaries);
 	}
 }
