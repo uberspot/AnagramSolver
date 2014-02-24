@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.as.anagramsolver"
-    android:versionCode="14"
-    android:versionName="2.11" 
+    android:versionCode="15"
+    android:versionName="2.2" 
     android:installLocation="auto" >
 
     <uses-sdk
@@ -35,6 +35,16 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.as.anagramsolver.SettingsPage"
+            android:label="@string/settings"
+            android:screenOrientation="portrait"    
+            android:configChanges="orientation|keyboardHidden" 
+            android:parentActivityName="com.as.anagramsolver.SettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ItemListActivity" />
         </activity>
     </application>
 

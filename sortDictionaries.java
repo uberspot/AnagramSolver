@@ -27,9 +27,9 @@ public class sortDictionaries {
                         java.util.Arrays.sort(l);
 
                         String nfdNormalizedString = Normalizer.normalize((new String(l)), Normalizer.Form.NFD); 
-			            String deaccented = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase();
+            String deaccented = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase(Locale.getDefault());
 
-                        out.println(deaccented.hashCode());
+                        out.println(deaccented);//.hashCode());
                         line = in.readLine();
                 }
                 in.close();

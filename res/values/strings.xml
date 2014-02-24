@@ -2,21 +2,31 @@
 <resources xmlns:xliff="rn:oasis:names:tc:xliff:document:1.2">
 
     <string name="app_name">AnagramSolver</string>
-    <string name="action_settings">Settings</string>
+    <string name="settings">Settings</string>
     <string name="input">Input:</string>
     <string name="search_words">Search words!</string>
-	<string name="choose_language">Choose Language</string>
+    <string name="choose_language">Choose Language</string>
     <string name="choose_enabled_languages">Choose enabled languages</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="search_substrings">Search for substring anagrams</string>
     <string name="stop_search">Stop search!</string>
     <string name="search_ended">Search ended</string>
-    <string name="matches">Matches <xliff:g id="num" example="10" >(%1$s):\n</xliff:g></string>
+    <string name="matches">Matches <xliff:g id="num" example="10">(%1$s):\n</xliff:g></string>
     <string name="no_input_given">No input given<xliff:g>&#8230;</xliff:g></string>
     <string name="dict_not_loaded">Selected Dictionary not loaded</string>
-    <string name="searching_please_wait">Searching. Please wait<xliff:g>&#8230;</xliff:g> </string>
+    <string name="searching_please_wait">Searching. Please wait<xliff:g>&#8230;</xliff:g></string>
     <string name="please_wait">Please wait</string>
-    <string name="populating_dbs">Populating <xliff:g id="name" example="language" >%1$s</xliff:g> database.\nThis might take 3 to 10 minutes.</string>
-    
+    <string name="populating_db">Populating databases.\nThis might take 3 to 10 minutes.</string>
+    <string name="populating_dbs">Populating <xliff:g id="name" example="language">%1$s</xliff:g> database.\nThis might take 3 to 10 minutes.</string>
+    <string name="sort_results">Sort results</string>
+    <string name="sort_results_sum">Results are sorted <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+    <string name="keep_screen_on">Keep screen on</string>
+    <string name="enabled_languages">Enabled Languages</string>
+    <string name="enabled_languages_list">Enabled Languages: <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+
+    <string name="general_settings">General settings</string>
+
+    <string name="language_settings">Language settings</string>
+
 </resources>

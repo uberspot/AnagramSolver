@@ -1,9 +1,11 @@
 package com.as.anagramsolver;
 
-import java.util.Arrays;
+import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -15,15 +17,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -43,9 +44,6 @@ import com.uberspot.storageutils.StorageUtils;
 
 public class StartPage extends SherlockActivity {
 
-	private static final String LANG_SEL_KEY = "langSelected";
-	private static final String SEARCH_SUBSTR_KEY = "searchSubstr";
-	private static final String LANG_ENABLED_KEY = "langEnabled";
 	private DictionaryDBCreator dbCreator;
 	private String languageSelected;
 	private StorageUtils storage;
@@ -60,6 +58,10 @@ public class StartPage extends SherlockActivity {
 	private Button searchButton;
 	private boolean searching;
 	
+	/** Pattern used for removing diacritical marks like accents as to normalize
+	 *  given words to a simpler form */
+	private Pattern pattern;
+	
 	/** An AsyncTask that:
 	 * - Displays a progress dialog
 	 * - Initializes the sqlite database with getReadableDatabase()
@@ -73,22 +75,26 @@ public class StartPage extends SherlockActivity {
         @Override
         protected void onPreExecute() {
         	mProgressDialog = ProgressDialog.show(StartPage.this, 
-        			getString(R.string.please_wait), getString(R.string.populating_dbs) , true, false);
+        							getString(R.string.please_wait), 
+        							getString(R.string.populating_db), 
+        							true, false);
         }
 
         protected String doInBackground(String... strings) {
+        	if(!searching) {
         		SQLiteDatabase db = dbCreator.getReadableDatabase();
-        		
+
         		//For each available language
-        		for(String dict: dbCreator.getEnabledDictionaries()) {
+        		for(String dict: SettingsPage.getEnabledDictionaries()) {
         			publishProgress(dict);
         			dbCreator.createTable(db, dict);
         		}
+        	}
             return "";
         }
 
         protected void onPostExecute(String result) {
-        	if(mProgressDialog!=null && mProgressDialog.isShowing()){
+        	if( mProgressDialog!=null && mProgressDialog.isShowing() ){
 				try {
 					mProgressDialog.dismiss();
 				} catch(IllegalArgumentException e) { return; }
@@ -110,19 +116,29 @@ public class StartPage extends SherlockActivity {
 		
         @Override protected void onPreExecute() { 
         	searching = true;
-        	Toast.makeText(getApplicationContext(), getString(R.string.searching_please_wait), Toast.LENGTH_SHORT).show();
+        	Toast.makeText(getApplicationContext(), 
+        			getString(R.string.searching_please_wait), 
+        			Toast.LENGTH_SHORT)
+        			.show();
         }
 
         protected String doInBackground(String... strings) {
         	String inLetters = input.getText().toString().trim();
-        	if(inLetters.contains("*") && inLetters.matches("[^!@#$%`~;&\\(\\)\\[\\]{}.,<>]+")) {
+        	
+        	if( inLetters.contains("*") && inLetters.matches("[^!@#$%`~;&\\(\\)\\[\\]{}.,<>]+") ) {
+        		
         		inLetters = inLetters.replace('*', '%');
         		Set<String> starWords = new HashSet<String>();
         		starWords.addAll( dbCreator.getStarMatches(languageSelected, inLetters) );
 				words = starWords.toArray(new String[starWords.size()]);
 				publishProgress();
+				
         	} else {
-	    		if(searchSubstrings.isChecked()) {
+        		// Normalize input
+        		String nfdNormalizedString = Normalizer.normalize((inLetters), Normalizer.Form.NFD); 
+        		inLetters = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase(Locale.getDefault());
+        	    
+	    		if( searchSubstrings.isChecked() ) {
 	    			searchAllMatchingAnagrams(languageSelected, inLetters);
 	    		} else {
 	    			Set<String> matchingWords = new HashSet<String>();
@@ -130,6 +146,7 @@ public class StartPage extends SherlockActivity {
 					words = matchingWords.toArray(new String[matchingWords.size()]);
 					publishProgress();
 	    		}
+	    		
     		}
             return "";
         }
@@ -142,13 +159,17 @@ public class StartPage extends SherlockActivity {
         	output.setText(getString(R.string.matches, words.length ));
 	    	
 	    	//UpdateListview
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
-					R.layout.word_layout, words);
-			adapter.sort(new Comparator<String>(){
-				@Override
-				public int compare(String str1, String str2) {
-					return str1.compareTo(str2);
-				}});
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+											getApplicationContext(),
+											R.layout.word_layout, words);
+			
+			if( SettingsPage.sortOptionSelected.equals("2") )
+				adapter.sort(lengthAscComp);
+			else if( SettingsPage.sortOptionSelected.equals("3") )
+				adapter.sort(lengthDescComp);
+			else 
+				adapter.sort(alphabeticComp);
+			
 			listView.setAdapter(adapter);
         }
         
@@ -156,7 +177,10 @@ public class StartPage extends SherlockActivity {
         protected void onCancelled() {
         	searching = false;
 	    	searchButton.setText(getString(R.string.search_words));
-	    	Toast.makeText(getApplicationContext(), getString(R.string.search_ended), Toast.LENGTH_SHORT).show();
+	    	Toast.makeText(getApplicationContext(), 
+	    			getString(R.string.search_ended), 
+	    			Toast.LENGTH_SHORT)
+	    			.show();
         }
         
         /** Searches for anagrams with all the words that can be formed from the given letters in value and from all the subsets of those letters
@@ -174,13 +198,13 @@ public class StartPage extends SherlockActivity {
     				int bitmask = i;
     	
     				StringBuilder str = new StringBuilder("");
-    				while (bitmask > 0) {
+    				while ( bitmask > 0 ) {
     					if ((bitmask & 1) == 1)
     						str.append(value.charAt(pos));
     					bitmask >>= 1;
     					pos--;
     				}
-    				if(str.length()>3) {
+    				if( str.length() > 3 ) {
     					Set<String> tempSet = dbCreator.getMatchingAnagrams(dict, str.toString());
     					if(!tempSet.isEmpty()) {
 	    					matchingWords.addAll(tempSet);
@@ -188,7 +212,7 @@ public class StartPage extends SherlockActivity {
 	    					publishProgress();
     					}
     				}
-    				if(isCancelled()) {
+    				if( isCancelled() ) {
     					break;
     				}
     			}
@@ -200,23 +224,27 @@ public class StartPage extends SherlockActivity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.start_page);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
         storage = new StorageUtils(getApplicationContext());
+        
+        boolean keepScreenOn = PreferenceManager.getDefaultSharedPreferences(this)
+        								.getBoolean(SettingsPage.KEEP_SCREEN_ON_KEY, true);
+        if(keepScreenOn)
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
         // Show changelog if it's the first time a new version loads
         ChangeLog cl = new ChangeLog(this);
-        if (cl.isFirstRun()) {
+        if ( cl.isFirstRun() ) {
         	cl.getLogDialog().show();
         }
         
         // Load previously selected language from preferences
-        languageSelected = storage.getPreference(LANG_SEL_KEY, DictionaryDBCreator.DEFAULT_DICTIONARY);
-       
-        // TEMPORARY till all the prefs are saved in the correct format
-        languageSelected = languageSelected.substring(0, 1).toUpperCase() + languageSelected.substring(1).toLowerCase();
-        storage.savePreference(LANG_SEL_KEY, languageSelected);
+        languageSelected = storage.getPreference(SettingsPage.LANG_SEL_KEY, 
+        								DictionaryDBCreator.DEFAULT_DICTIONARY);
         
   		searching = false; 
+  		
+  		pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
   		
   		// Find the Views once in OnCreate to save time and not use findViewById later.
   		spinner = (Spinner) findViewById(R.id.langSpinner);
@@ -245,48 +273,50 @@ public class StartPage extends SherlockActivity {
 					int pos, long id) {
 				if (v!=null) {
 	            	startActivity(new Intent(Intent.ACTION_VIEW, 
-	            			Uri.parse("http://google.com/search?q=define:" + ((TextView) v).getText().toString())));
+	            					Uri.parse("http://google.com/search?q=define:" 
+	            								+ ((TextView) v).getText().toString())
+	            					));
 				}
         		return true;
 			}
         });
   		searchSubstrings = (CheckBox) findViewById(R.id.search_substrings);
         searchSubstrings.setChecked(PreferenceManager.getDefaultSharedPreferences(this)
-				.getBoolean(SEARCH_SUBSTR_KEY, true));
+									.getBoolean(SettingsPage.SEARCH_SUBSTR_KEY, true));
   		searchSubstrings.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-		  	    editor.putBoolean(SEARCH_SUBSTR_KEY, isChecked);
+				SharedPreferences.Editor editor = 
+						PreferenceManager.getDefaultSharedPreferences(
+								getApplicationContext()
+								)
+								.edit();
+		  	    editor.putBoolean(SettingsPage.SEARCH_SUBSTR_KEY, isChecked);
 		  	    editor.commit();
 			}});
-  		//Initialize the database
+  		// Initialize the database
         dbCreator = new DictionaryDBCreator(getApplicationContext());
-        // Load enabled languages from preferences
-        
-  		Set<String> enabledLangs = storage.getPreferenceSet(LANG_ENABLED_KEY, 
-					new HashSet<String>(Arrays.asList(new String[] { DictionaryDBCreator.DEFAULT_DICTIONARY })));
-  		
-  		// TEMPORARY to convert all prefs to the same format
-  		Set<String> correctLangs = new HashSet<String>();
-  		for(String l : enabledLangs) {
-  			l = l.substring(0, 1).toUpperCase() + l.substring(1).toLowerCase();
-  			correctLangs.add(l);
-  		}
-  		storage.savePreferenceSet(LANG_ENABLED_KEY, correctLangs);
-  		// END TEMPORARY
-  		
-  		dbCreator.setEnabledDictionaries(correctLangs); // Change to enabledLangs later on
+    }
+    
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	
+    	// Load settings each time the activity loads to ensure latest changes are applied
+    	SettingsPage.loadSettings(getApplicationContext());
 
-        new DBLoaderTask().execute();
+    	new DBLoaderTask().execute();
 		
-		setupSpinner(); 
+		setupSpinner();
     }
     
     /** Initializes the spinner view and fills it with the language choices 
      *  that are enabled via the settings. */
 	private void setupSpinner() {
-		String[] values = dbCreator.getEnabledDictionaries().toArray(new String[dbCreator.getEnabledDictionaries().size()]); 
+		String[] values = SettingsPage.getEnabledDictionaries()
+								.toArray(
+										new String[SettingsPage.getEnabledDictionaries().size()]
+								 ); 
 		
 		spinner.setAdapter(new ArrayAdapter<String>(this, 
         				android.R.layout.simple_list_item_1, values));
@@ -294,10 +324,13 @@ public class StartPage extends SherlockActivity {
 		spinner.setSelection(getSelectedLanguage(values));
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 		        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+		        	
 		        	languageSelected =  (String) parent.getItemAtPosition(pos);
 		        	//Save change in preferences
-		        	SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-			  	    editor.putString(LANG_SEL_KEY, languageSelected);
+		        	SharedPreferences.Editor editor = PreferenceManager
+		        				.getDefaultSharedPreferences(getApplicationContext())
+		        				.edit();
+			  	    editor.putString(SettingsPage.LANG_SEL_KEY, languageSelected);
 			  	    editor.commit();
 		        } 
 		        public void onNothingSelected(AdapterView<?> arg0) {}
@@ -309,8 +342,7 @@ public class StartPage extends SherlockActivity {
 	 * @return an int which is the position of the language in the values or 0 if it is not found
 	 */
 	private int getSelectedLanguage(String[] values) {
-		int i=0;
-		for(; i<values.length; i++){
+		for(int i=0; i < values.length; i++){
 				if(values[i].equalsIgnoreCase(languageSelected))
 					return i;
 		}
@@ -320,7 +352,7 @@ public class StartPage extends SherlockActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-    	getSupportMenuInflater().inflate(R.menu.start_page, menu);
+    	getSupportMenuInflater().inflate(R.menu.start_page_menu, menu);
         return true;
     }
     
@@ -330,7 +362,7 @@ public class StartPage extends SherlockActivity {
     		dbSearchTask.cancel(true);
     		return;
     	}
-    	if (dbCreator!=null && dbCreator.hasLoadedDictionary(languageSelected)) {
+    	if (dbCreator!=null && SettingsPage.hasLoadedDictionary(languageSelected)) {
     		String inLetters = input.getText().toString().trim();
         	if(inLetters!=null && !"".equals(inLetters)) {
         		hideSoftKeyboard();
@@ -338,17 +370,23 @@ public class StartPage extends SherlockActivity {
 	    		dbSearchTask = new DBSearchTask();
 	    		dbSearchTask.execute();
         	} else {
-        		Toast.makeText(getApplicationContext(), getString(R.string.no_input_given), Toast.LENGTH_SHORT).show();
+        		Toast.makeText(getApplicationContext(), 
+        				getString(R.string.no_input_given), 
+        				Toast.LENGTH_SHORT)
+        				.show();
         	}
     	} else {
     		hideSoftKeyboard();
-    		Toast.makeText(getApplicationContext(), getString(R.string.dict_not_loaded), Toast.LENGTH_SHORT).show();
+    		Toast.makeText(getApplicationContext(), 
+    				getString(R.string.dict_not_loaded), 
+    				Toast.LENGTH_SHORT)
+    				.show();
     	}
     }
     
     private void hideSoftKeyboard(){
-        if(getCurrentFocus()!=null && getCurrentFocus() instanceof EditText){
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null && getCurrentFocus() instanceof EditText) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
         }
     }
@@ -357,68 +395,41 @@ public class StartPage extends SherlockActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings_button:
-            	showLanguageSelection();
+            	startActivity(new Intent(this, SettingsPage.class));
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
     
-    /** Called when the settings button is pressed. Displays an alert dialog
-     * with a checkbox for each language that can be enabled. 
-     * After the Ok button is pressed it saves the enabled languages in the preferences
-     * and loads the appropriate databases again.
-     */
-    private void showLanguageSelection(){
-    	// Find which language checkboxes should be checked based on the languagesEnabled set
-    	int dictionariesSize = DictionaryDBCreator.DICTIONARIES.size();
-        boolean[] checkedLanguages = new boolean[dictionariesSize];
-        String[] langs = new String[dictionariesSize];
-        for(int i=0; i < checkedLanguages.length; i++) { 
-        	langs[i] = DictionaryDBCreator.DICTIONARIES.get(i);
-        	if(dbCreator.hasLoadedDictionary(langs[i])){
-        		checkedLanguages[i] = true;
-        	} else {
-        		checkedLanguages[i] = false;
-        	}
-        }
-        
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Set the dialog title
-        builder.setTitle(R.string.choose_enabled_languages)
-        // Specify the list array, the items to be selected by default (null for none),
-        // and the listener through which to receive callbacks when items are selected
-               .setMultiChoiceItems(langs, checkedLanguages, 
-                          new DialogInterface.OnMultiChoiceClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                	   		   String checkedLang = DictionaryDBCreator.DICTIONARIES.get(which);
-		                       if (isChecked) {
-		                           // If the user checked the item, add it to the selected items
-		                    	   dbCreator.addEnabledDictionary(checkedLang);
-		                       } else if (dbCreator.hasLoadedDictionary(checkedLang)) {
-		                           // Else, if the item is already in the array, remove it 
-		                    	   dbCreator.removeEnabledDictionary(checkedLang);
-		                       }
-                   }
-               })
-               // Set the action buttons
-               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int id) {
-                	   		// Save selected language list 
-                	   		storage.savePreferenceSet(LANG_ENABLED_KEY, dbCreator.getEnabledDictionaries());
-	                	    
-		   			  	    // Update spinner language list
-			   			  	setupSpinner();
-			   			  	
-			   			    //Update dictionary tables in database
-			   			  	new DBLoaderTask().execute();
-                   }
-               })
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int id) { }
-               }).show();
-    }
+    private static final Comparator<String> alphabeticComp = new Comparator<String>() {
+		@Override 
+		public int compare(String str1, String str2) { 
+			return str1.compareTo(str2);
+		}
+	};
+	
+	/** Compares strings based on string length. If they have the same length 
+	 * then they are compared alphabetically 
+	 */
+	private static final Comparator<String> lengthAscComp = new Comparator<String>() {
+		@Override
+		public int compare(String str1, String str2) {
+			if(str1.length() == str2.length())
+				return str1.compareTo(str2);
+			return Integer.valueOf( str1.length() ).compareTo( str2.length() );
+		}
+	};
+	
+	/** Compares strings based on string length. If they have the same length 
+	 * then they are compared alphabetically 
+	 */
+	private static final Comparator<String> lengthDescComp = new Comparator<String>() {
+		@Override 
+		public int compare(String str1, String str2) {
+			if(str1.length() == str2.length())
+				return str1.compareTo(str2);
+			return Integer.valueOf( str2.length() ).compareTo( str1.length() );
+		}
+	};
    
 }
