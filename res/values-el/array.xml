@@ -1,0 +1,7 @@
+<resources>
+	<string-array name="sortOptionsArray">
+		<item>αλφαβητικά</item>
+		<item>κατά μήκος λέξης (αυξ.)</item>
+		<item>κατά μήκος λέξης (φθήν.)</item>
+	</string-array>
+</resources>

@@ -17,6 +17,17 @@
     <string name="dict_not_loaded">Το επιλεγμένο λεξικό δεν έχει φορτωθεί</string>
     <string name="searching_please_wait">Αναζήτηση. Παρακαλώ περιμένετε<xliff:g>&#8230;</xliff:g> </string>
     <string name="please_wait">Παρακαλώ περιμένετε</string>
-    <string name="populating_dbs">Δημιουργία βάσης για <xliff:g id="name" example="language" >%1$s</xliff:g>.\n Μπορεί να πάρει απο 3 μέχρι 10 λεπτά.</string>
+    
+    <string name="populating_db">Δημιουργία βάσεων.\nΜπορεί να πάρει απο 3 μέχρι 10 λεπτά.</string>
+    <string name="populating_dbs">Δημιουργία βάσης <xliff:g id="name" example="language">%1$s</xliff:g>.\nΜπορεί να πάρει απο 3 μέχρι 10 λεπτά.</string>
+    <string name="sort_results">Ταξινόμηση αποτελεσμάτων</string>
+    <string name="sort_results_sum">Τα αποτελέσματα είναι ταξινομημένα <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+    <string name="keep_screen_on">Η οθόνη να μένει ανοιχτή</string>
+    <string name="enabled_languages">Ενεργές γλώσσες</string>
+    <string name="enabled_languages_list">Ενεργές γλώσσες: <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+
+    <string name="general_settings">Γενικές ρυθμίσεις</string>
+
+    <string name="language_settings">Ρυθμίσεις γλώσσας</string>
     
 </resources>

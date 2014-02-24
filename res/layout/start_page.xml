@@ -4,7 +4,6 @@
 	    android:layout_height="match_parent"
 	    android:padding="7dp"
 	    android:orientation="vertical"
-	    android:keepScreenOn="true"
 	    tools:context=".StartPage" >
 
 	    <Spinner

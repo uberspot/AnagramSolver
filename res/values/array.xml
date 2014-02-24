@@ -1,0 +1,12 @@
+<resources>
+	<string-array name="sortOptionsArray">
+		<item>alphabetically</item>
+		<item>by word length (asc)</item>
+		<item>by word length (desc)</item>
+	</string-array>
+	<string-array name="sortOptionsValues">
+	    <item>1</item>
+		<item>2</item>
+		<item>3</item>
+	</string-array>
+</resources>

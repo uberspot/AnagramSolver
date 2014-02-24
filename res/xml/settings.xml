@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
         <PreferenceCategory
-                android:title="Language settings">
-         
+                android:title="@string/general_settings" >
+         		<ListPreference 
+         		      android:title="@string/sort_results"
+                      android:key="sortpreference"
+                      android:defaultValue="1"
+                      android:entries="@array/sortOptionsArray"
+                      android:entryValues="@array/sortOptionsValues" />
+         		<CheckBoxPreference
+			        android:key="keepscreenon"
+			        android:title="@string/keep_screen_on"
+			        android:defaultValue="true" />
+        </PreferenceCategory>
+        <PreferenceCategory
+                android:title="@string/language_settings" >
+         		<Preference 
+			        android:key="langEnabled"
+			        android:title="@string/enabled_languages" />
         </PreferenceCategory>
 </PreferenceScreen>
