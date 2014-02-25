@@ -302,12 +302,14 @@ public class StartPage extends SherlockActivity {
     public void onResume() {
     	super.onResume();
     	
-    	// Load settings each time the activity loads to ensure latest changes are applied
-    	SettingsPage.loadSettings(getApplicationContext());
-
-    	new DBLoaderTask().execute();
-		
-		setupSpinner();
+    	if( !searching ) {
+	    	// Load settings each time the activity loads to ensure latest changes are applied
+	    	SettingsPage.loadSettings(getApplicationContext());
+	
+	    	new DBLoaderTask().execute();
+			
+			setupSpinner();
+    	}
     }
     
     /** Initializes the spinner view and fills it with the language choices 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-  <release version="2.2" versioncode="15" >
+  <release version="2.21" versioncode="16" >
       <change>Added settings page</change>
       <change>Added option for sorting search results and for keeping screen on in app</change>
       <change>Added plenty of improvements to speed up search</change>
