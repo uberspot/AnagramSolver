@@ -24,7 +24,8 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	public static final ArrayList<String> DICTIONARIES = new ArrayList<String>(
 			Arrays.asList("English", "Greek", 
 						  "Polish", "French", 
-						  "German", "Spanish", "Italian")
+						  "German", "Spanish", 
+						  "Italian", "Turkish")
 			);
 	
 	public static final String DEFAULT_DICTIONARY = DICTIONARIES.get(0);
@@ -35,14 +36,16 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 			 * for each language of the enumeration. */
 			dictIDs = { R.raw.en_us, R.raw.el_gr, 
 						R.raw.pl_pl, R.raw.fr_fr, 
-						R.raw.de_de, R.raw.es_es, R.raw.it_it},
+						R.raw.de_de, R.raw.es_es, 
+						R.raw.it_it, R.raw.tr_tr},
 			
 			/** An array containing the corresponding raw sorted dictionary file. 
 			 * Each word in that file is the same as the original but with its characters 
 			 * sorted alphabetically, lowercased and normalized(no accents etc) */
 		    sdictIDs = { R.raw.en_us_sorted, R.raw.el_gr_sorted, 
 						 R.raw.pl_pl_sorted, R.raw.fr_fr_sorted, 
-						 R.raw.de_de_sorted, R.raw.es_es_sorted, R.raw.it_it_sorted};
+						 R.raw.de_de_sorted, R.raw.es_es_sorted, 
+						 R.raw.it_it_sorted, R.raw.tr_tr_sorted};
 	
 	
 	
@@ -91,9 +94,9 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 		//Else Drop it from the database so it doesn't take up space
 		} else {
 			db.execSQL("DROP TABLE IF EXISTS " + dict + ";");
+			//Clean up after leftover pages in memory
+			db.rawQuery("VACUUM", null);
 		}
-		//Clean up after leftover pages in memory
-		db.rawQuery("VACUUM", null);
 	}
 	
 	@Override

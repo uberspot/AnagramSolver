@@ -57,6 +57,7 @@ public class StartPage extends SherlockActivity {
 	private CheckBox searchSubstrings;
 	private Button searchButton;
 	private boolean searching;
+	private ProgressDialog mProgressDialog;
 	
 	/** Pattern used for removing diacritical marks like accents as to normalize
 	 *  given words to a simpler form */
@@ -70,8 +71,6 @@ public class StartPage extends SherlockActivity {
 	 * - Dismisses the progress dialog
 	 */
 	class DBLoaderTask extends AsyncTask<String, String, String> {
-        private ProgressDialog mProgressDialog;
-
         @Override
         protected void onPreExecute() {
         	mProgressDialog = ProgressDialog.show(StartPage.this, 
@@ -85,7 +84,7 @@ public class StartPage extends SherlockActivity {
         		SQLiteDatabase db = dbCreator.getReadableDatabase();
 
         		//For each available language
-        		for(String dict: SettingsPage.getEnabledDictionaries()) {
+        		for (String dict : DictionaryDBCreator.DICTIONARIES) {
         			publishProgress(dict);
         			dbCreator.createTable(db, dict);
         		}
@@ -94,17 +93,11 @@ public class StartPage extends SherlockActivity {
         }
 
         protected void onPostExecute(String result) {
-        	if( mProgressDialog!=null && mProgressDialog.isShowing() ){
-				try {
-					mProgressDialog.dismiss();
-				} catch(IllegalArgumentException e) { return; }
-			} else {
-				return;
-			}
+        	dismissProgressDialog();
         }
         
         @Override
-	    public void onProgressUpdate(String... args){
+	    public void onProgressUpdate(String... args) {
         	mProgressDialog.setMessage(getString(R.string.populating_dbs, args[0]));
         }
     }
@@ -312,6 +305,13 @@ public class StartPage extends SherlockActivity {
     	}
     }
     
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+    	dismissProgressDialog();
+    }
+    
     /** Initializes the spinner view and fills it with the language choices 
      *  that are enabled via the settings. */
 	private void setupSpinner() {
@@ -403,7 +403,15 @@ public class StartPage extends SherlockActivity {
         }
     }
     
-    private static final Comparator<String> alphabeticComp = new Comparator<String>() {
+	private void dismissProgressDialog() {
+		if(mProgressDialog != null){
+			try {
+				mProgressDialog.dismiss();
+			} catch(IllegalArgumentException e) { return; }
+		}
+	}
+
+	private static final Comparator<String> alphabeticComp = new Comparator<String>() {
 		@Override 
 		public int compare(String str1, String str2) { 
 			return str1.compareTo(str2);
