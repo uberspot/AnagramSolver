@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.3" versioncode="17" >
+  <release version="2.4" versioncode="18" >
+      <change>Added clear button in search box</change>
+      <change>Fixed crash when ' was entered in search box</change>
+  </release>
+  <release version="2.3" versioncode="17" >
       <change>Added Turkish dictionary</change>
       <change>Fixed a small crash when enabled dictionaries were updated</change>
   </release>
