@@ -21,16 +21,33 @@
 	        android:text="@string/input"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
 	
-	    <EditText
-	        android:id="@+id/inputText"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:gravity="center_vertical|center_horizontal"
-	        android:ems="10"
-	        android:inputType="textNoSuggestions"
-			android:imeOptions="actionSearch" >
-	        <requestFocus />
-	    </EditText>
+	    <RelativeLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content" >
+		
+		    <EditText
+			        android:id="@+id/inputText"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:gravity="center_vertical|center_horizontal"
+			        android:ems="10"
+			        android:inputType="textNoSuggestions"
+					android:imeOptions="actionSearch" >
+			        <requestFocus />
+			    </EditText>
+		
+		    <ImageButton
+		        android:id="@+id/clearButton"
+		        android:contentDescription="@string/clear"
+		        android:layout_width="wrap_content"
+		        android:background="@null"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentRight="true"
+		        android:src="@drawable/ic_action_cancel"
+		        android:layout_centerVertical="true" />
+		
+		</RelativeLayout>
+
 		<CheckBox
 		        android:id="@+id/search_substrings"
 		        android:layout_width="match_parent"

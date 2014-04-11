@@ -13,7 +13,7 @@
     <string name="stop_search">Παύση αναζήτησης!</string>
     <string name="search_ended">Η αναζήτηση τελείωσε</string>
     <string name="matches">Αποτελέσματα <xliff:g id="num" example="10" >(%1$s):\n</xliff:g></string>
-    <string name="no_input_given">Δεν δώθηκαν γράμματα<xliff:g>&#8230;</xliff:g></string>
+    <string name="no_input_given">Δεν δώθηκαν σωστά γράμματα<xliff:g>&#8230;</xliff:g></string>
     <string name="dict_not_loaded">Το επιλεγμένο λεξικό δεν έχει φορτωθεί</string>
     <string name="searching_please_wait">Αναζήτηση. Παρακαλώ περιμένετε<xliff:g>&#8230;</xliff:g> </string>
     <string name="please_wait">Παρακαλώ περιμένετε</string>
