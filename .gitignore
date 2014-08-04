@@ -4,6 +4,8 @@
 !res/
 !libs/
 !LICENSE
+!LICENSE.txt
+!LICENSE_*.txt
 !.gitignore
 !.gitmodules
 !ic_launcher-web.png
