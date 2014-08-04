@@ -18,8 +18,8 @@
     <string name="dict_not_loaded">Dictionaire sélectionné non chargé</string>
     <string name="searching_please_wait">Recherche. Veuillez attendre<xliff:g>&#8230;</xliff:g></string>
     <string name="please_wait">Veuillez attendre</string>
-    <string name="populating_db">Remplissage de la base de données.\nCela peut prendre de 3 à 10 minutes.</string>
-    <string name="populating_dbs">Remplissagede la base de données <xliff:g id="name" example="language">%1$s</xliff:g>.\nCela peut prendre de 3 à 10 minutes.</string>
+    <string name="populating_db">Remplissage de la base de données.\nCela peut prendre quelques minutes.</string>
+    <string name="populating_dbs">Remplissagede la base de données <xliff:g id="name" example="language">%1$s</xliff:g>.\nCela peut prendre quelques minutes.</string>
     <string name="sort_results">Trier les resultats</string>
     <string name="sort_results_sum">Les résultats sont triés <xliff:g id="name" example="languages">%1$s</xliff:g></string>
     <string name="keep_screen_on">Laisser l\'écran allumé</string>
