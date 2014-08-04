@@ -285,7 +285,7 @@ public class StartPage extends SherlockActivity {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> lView, View v,
 					int pos, long id) {
-				if (v!=null) {
+				if (v != null) {
 	            	startActivity(new Intent(Intent.ACTION_VIEW,
 	            					Uri.parse("http://google.com/search?q=define:"
 	            								+ ((TextView) v).getText().toString())
@@ -348,7 +348,6 @@ public class StartPage extends SherlockActivity {
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 		        @Override
 				public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-
 		        	languageSelected =  (String) parent.getItemAtPosition(pos);
 		        	//Save change in preferences
 		        	SharedPreferences.Editor editor = PreferenceManager
@@ -367,7 +366,7 @@ public class StartPage extends SherlockActivity {
 	 * @return an int which is the position of the language in the values or 0 if it is not found
 	 */
 	private int getSelectedLanguage(String[] values) {
-		for(int i=0; i < values.length; i++){
+		for(int i=0; i < values.length; ++i){
 				if(values[i].equalsIgnoreCase(languageSelected)) {
 					return i;
 				}

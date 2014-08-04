@@ -106,12 +106,12 @@ public class SettingsPage extends SherlockPreferenceActivity {
 	}
 	
 	private Preference.OnPreferenceClickListener enableLanguageListener = 
-			new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference pref) {
-						showLanguageSelection(pref);
-						return true;
-					}
+		new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference pref) {
+					showLanguageSelection(pref);
+					return true;
+			}
 	};
 	
 	/** Called when the settings button is pressed. Displays an alert dialog
@@ -124,13 +124,9 @@ public class SettingsPage extends SherlockPreferenceActivity {
     	int dictionariesSize = DictionaryDBCreator.DICTIONARIES.size();
         boolean[] checkedLanguages = new boolean[dictionariesSize];
         String[] langs = new String[dictionariesSize];
-        for(int i=0; i < checkedLanguages.length; i++) { 
+        for(int i=0; i < checkedLanguages.length; ++i) {
         	langs[i] = DictionaryDBCreator.DICTIONARIES.get(i);
-        	if( SettingsPage.hasLoadedDictionary(langs[i]) ){
-        		checkedLanguages[i] = true;
-        	} else {
-        		checkedLanguages[i] = false;
-        	}
+        	checkedLanguages[i] = SettingsPage.hasLoadedDictionary(langs[i]);
         }
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -165,7 +161,7 @@ public class SettingsPage extends SherlockPreferenceActivity {
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                    @Override
-                   public void onClick(DialogInterface dialog, int id) { }
+                   public void onClick(DialogInterface dialog, int id) {}
                }).show();
     }
     
