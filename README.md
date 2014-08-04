@@ -1,9 +1,9 @@
 #AnagramSolver
 
-AnagramSolver is an open source android app that finds the words that can be created with some given letters.
-It supports English, Greek, German, Italian, Spanich, Polish and French. By default only english are enabled.
+AnagramSolver is an open source Android app that finds the words that can be created with some given letters.
+It supports English, Greek, German, Italian, Spanich, Polish and French. By default only english is enabled.
 You can enable the other languages from the settings button on top.
-TIP: If you long click on a search result it will search for the words definition online. That's why it needs the INTERNET permission.
+TIP: If you long click on a search result it will search for the words definition online. That's why it needs the Internet permission.
 
 It works by normalizing both the letters it's searching and the words in the dictionary so that it can compare them fast in a database. Basically it uses an original dictionary where each line is a different word and a sorted version of that dictionary where each line is the same corresponding word but sorted alphabetically, lowercased and stripped from accents. 
 
@@ -32,3 +32,7 @@ All the dictionaries used in the app were taken from publicly available OpenOffi
     
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+##Download
+
+* (F-Droid)[https://f-droid.org/repository/browse/?fdid=com.as.anagramsolver]
