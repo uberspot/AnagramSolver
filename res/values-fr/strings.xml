@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="rn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_name">SolveurAnagramme</string>
+    <string name="settings">Paramètres</string>
+    <string name="input">Entrée :</string>
+    <string name="clear">Vider</string>
+    <string name="search_words">Rechercher des mots !</string>
+    <string name="choose_language">Choisir la langue</string>
+    <string name="choose_enabled_languages">Choisir les langues activées</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="search_substrings">Rechercher des sous-parties d\'anagrammes</string>
+    <string name="stop_search">Arrêter la recherche !</string>
+    <string name="search_ended">Recherche terminée</string>
+    <string name="matches">Correspond <xliff:g id="num" example="10">(%1$s):\n</xliff:g></string>
+    <string name="no_input_given">Entrée vide ou incorrecte<xliff:g>&#8230;</xliff:g></string>
+    <string name="dict_not_loaded">Dictionaire sélectionné non chargé</string>
+    <string name="searching_please_wait">Recherche. Veuillez attendre<xliff:g>&#8230;</xliff:g></string>
+    <string name="please_wait">Veuillez attendre</string>
+    <string name="populating_db">Remplissage de la base de données.\nCela peut prendre de 3 à 10 minutes.</string>
+    <string name="populating_dbs">Remplissagede la base de données <xliff:g id="name" example="language">%1$s</xliff:g>.\nCela peut prendre de 3 à 10 minutes.</string>
+    <string name="sort_results">Trier les resultats</string>
+    <string name="sort_results_sum">Les résultats sont triés <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+    <string name="keep_screen_on">Laisser l\'écran allumé</string>
+    <string name="enabled_languages">Langues activées</string>
+    <string name="enabled_languages_list">Langues activées : <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+
+    <string name="general_settings">Paramètres généraux</string>
+    <string name="language_settings">Paramètres de langue</string>
+
+</resources>
