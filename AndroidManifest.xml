@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.as.anagramsolver"
-    android:versionCode="18"
-    android:versionName="2.4" 
+    android:versionCode="19"
+    android:versionName="2.45" 
     android:installLocation="auto" >
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="20" />
 	
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -41,11 +41,7 @@
             android:name="com.as.anagramsolver.SettingsPage"
             android:label="@string/settings"
             android:screenOrientation="portrait"    
-            android:configChanges="orientation|keyboardHidden"
-            android:parentActivityName="com.as.anagramsolver.SettingsActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ItemListActivity" />
+            android:configChanges="orientation|keyboardHidden" >
         </activity>
     </application>
 

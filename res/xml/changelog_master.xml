@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+  <release version="2.45" versioncode="19" >
+      <change>Added improved french app translation (credits to Spanti Nicola)</change>
+      <change>Minor code cleanup.</change>
+  </release>
   <release version="2.4" versioncode="18" >
       <change>Added clear button in search box</change>
       <change>Fixed crash when ' was entered in search box</change>
