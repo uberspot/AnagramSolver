@@ -71,41 +71,41 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(final SQLiteDatabase db) {
-		//For each available language
-		for( String dict: DICTIONARIES ) {
-			createTable(db, dict);
-		}
+        //For each available language
+        for (String dict : DICTIONARIES) {
+            createTable(db, dict);
+        }
 	}
 
 	public void createTable(final SQLiteDatabase db, String dict) {
-		if( !DICTIONARIES.contains(dict) ) {
-			return;
-		}
-		//If it is enabled
-		if( SettingsPage.hasLoadedDictionary(dict) ) {
-			dict = dict.substring(0, 1).toUpperCase() + dict.substring(1).toLowerCase();
-			int position = DICTIONARIES.indexOf(dict);
+        if (!DICTIONARIES.contains(dict)) {
+            return;
+        }
+        //If it is enabled
+        if (SettingsPage.hasLoadedDictionary(dict)) {
+            dict = dict.substring(0, 1).toUpperCase() + dict.substring(1).toLowerCase();
+            int position = DICTIONARIES.indexOf(dict);
 
-			//And if the table doesn't exist already
-			if( !tableExists(db, dict) ) {
-				//Create and fill it
-				db.execSQL("CREATE TABLE IF NOT EXISTS " + dict + "(word TEXT, aword TEXT);");
-				fillDictionary(db, dictIDs[position], sdictIDs[position], dict);
-			}
-		//Else Drop it from the database so it doesn't take up space
-		} else {
-			db.execSQL("DROP TABLE IF EXISTS " + dict + ";");
-			//Clean up after leftover pages in memory
-			db.rawQuery("VACUUM", null);
-		}
-	}
+            //And if the table doesn't exist already
+            if (!tableExists(db, dict)) {
+                //Create and fill it
+                db.execSQL("CREATE TABLE IF NOT EXISTS " + dict + "(word TEXT, aword TEXT);");
+                fillDictionary(db, dictIDs[position], sdictIDs[position], dict);
+            }
+            //Else Drop it from the database so it doesn't take up space
+        } else {
+            db.execSQL("DROP TABLE IF EXISTS " + dict + ";");
+            //Clean up after leftover pages in memory
+            db.rawQuery("VACUUM", null);
+        }
+    }
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// Drop older tables if existed
-		for(String dictionary : DICTIONARIES) {
-			db.execSQL("DROP TABLE IF EXISTS " + dictionary);
-		}
+        // Drop older tables if existed
+        for (String dictionary : DICTIONARIES) {
+            db.execSQL("DROP TABLE IF EXISTS " + dictionary);
+        }
         // Create tables again
         onCreate(db);
 	}
@@ -122,31 +122,29 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @param dict the dictionary for which to update the table
 	 */
 	private void fillDictionary(SQLiteDatabase db, int rawResourceId, int rawSortedResourceId, String dict) {
-    	ContentValues v = new ContentValues();
-    	db.execSQL("PRAGMA read_uncommitted = true;");
-		db.beginTransaction();
-		try {
-				BufferedReader in1 = new BufferedReader(
-						new InputStreamReader(
-								context.getResources().openRawResource(rawResourceId), "UTF-8"));
-				BufferedReader in2 = new BufferedReader(
-						new InputStreamReader(
-								context.getResources().openRawResource(rawSortedResourceId), "UTF-8"));
+        ContentValues v = new ContentValues();
+        db.execSQL("PRAGMA read_uncommitted = true;");
+        db.beginTransaction();
+        try {
+            BufferedReader in1 = new BufferedReader(new InputStreamReader(context.getResources()
+                    .openRawResource(rawResourceId), "UTF-8"));
+            BufferedReader in2 = new BufferedReader(new InputStreamReader(context.getResources()
+                    .openRawResource(rawSortedResourceId), "UTF-8"));
 
-				String line1 = in1.readLine();
-				String line2 = in2.readLine();
+            String line1 = in1.readLine();
+            String line2 = in2.readLine();
 
-				while(line1 != null && line2 != null) {
-						v.put("word", line1);
-						v.put("aword", line2);
+            while ((line1 != null) && (line2 != null)) {
+                v.put("word", line1);
+                v.put("aword", line2);
 
-						db.insert(dict.toString(), null, v);
+                db.insert(dict.toString(), null, v);
 
-						line1 = in1.readLine();
-						line2 = in2.readLine();
-						v.clear();
-				}
-				db.setTransactionSuccessful();
+                line1 = in1.readLine();
+                line2 = in2.readLine();
+                v.clear();
+            }
+            db.setTransactionSuccessful();
 		} catch (NotFoundException e) {
 				System.out.println("File not found: " + e.getMessage());
 		} catch (UnsupportedEncodingException e) {
@@ -182,28 +180,31 @@ public class DictionaryDBCreator extends SQLiteOpenHelper {
 	 * @return
 	 */
 	public Set<String> getStarMatches(String dict, String word) {
-		if(word == null || word.isEmpty()) {
-			return new HashSet<String>();
-		}
-	    // Select "all matches" Query
-	    String selectQuery = "SELECT word FROM " + dict + " WHERE word LIKE \"" +  word + "\"";
-		return rawQueryResults(selectQuery);
+        if ((word == null) || word.isEmpty()) {
+            return new HashSet<String>();
+        }
+        // Select "all matches" Query
+        String selectQuery = "SELECT word FROM " + dict + " WHERE word LIKE \"" + word + "\"";
+        return rawQueryResults(selectQuery);
 	}
 
 	public Set<String> rawQueryResults(String selectQuery) {
-		Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
+        Cursor cursor = getReadableDatabase().rawQuery(selectQuery, null);
 
-	    Set<String> matchingWords = new HashSet<String>();
+        Set<String> matchingWords = new HashSet<String>();
 
-		// looping through all results and adding to list
-		if (cursor!=null && cursor.moveToFirst()) {
-			do {
-				matchingWords.add(cursor.getString(0));
-			} while (cursor.moveToNext());
-		}
+        // looping through all results and adding to list
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    matchingWords.add(cursor.getString(0));
+                } while (cursor.moveToNext());
+            }
 
-		cursor.close();
-		return matchingWords;
+            cursor.close();
+        }
+
+        return matchingWords;
 	}
 
 	/** Returns true if the table with the given name exists in the database, false otherwise

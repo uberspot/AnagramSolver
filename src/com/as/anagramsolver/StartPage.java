@@ -50,6 +50,8 @@ public class StartPage extends SherlockActivity {
 	private StorageUtils storage;
 	private DBSearchTask dbSearchTask;
 
+	private static final String WEB_SEARCH_URI_PREFIX = "https://google.com/search?q=define:";
+
 	/* Views */
 	private ListView listView;
 	private TextView output;
@@ -83,15 +85,15 @@ public class StartPage extends SherlockActivity {
 
         @Override
 		protected String doInBackground(String... strings) {
-        	if(!searching) {
-        		SQLiteDatabase db = dbCreator.getReadableDatabase();
+            if (!searching) {
+                SQLiteDatabase db = dbCreator.getReadableDatabase();
 
-        		//For each available language
-        		for (String dict : DictionaryDBCreator.DICTIONARIES) {
-        			publishProgress(dict);
-        			dbCreator.createTable(db, dict);
-        		}
-        	}
+                //For each available language
+                for (String dict : DictionaryDBCreator.DICTIONARIES) {
+                    publishProgress(dict);
+                    dbCreator.createTable(db, dict);
+                }
+            }
             return "";
         }
 
@@ -121,30 +123,31 @@ public class StartPage extends SherlockActivity {
 
         @Override
 		protected String doInBackground(String... strings) {
-        	String inLetters = searchString;
+            String inLetters = searchString;
 
-        	if(inLetters.contains("*")) {
+            if (inLetters.contains("*")) {
 
-        		inLetters = inLetters.replace('*', '%');
-        		Set<String> starWords = new HashSet<String>();
-        		starWords.addAll( dbCreator.getStarMatches(languageSelected, inLetters) );
-				words = starWords.toArray(new String[starWords.size()]);
-				publishProgress();
+                inLetters = inLetters.replace('*', '%');
+                Set<String> starWords = new HashSet<String>();
+                starWords.addAll(dbCreator.getStarMatches(languageSelected, inLetters));
+                words = starWords.toArray(new String[starWords.size()]);
+                publishProgress();
 
-        	} else {
-        		// Normalize input
-        		String nfdNormalizedString = Normalizer.normalize((inLetters), Normalizer.Form.NFD);
-        		inLetters = pattern.matcher(nfdNormalizedString).replaceAll("").toLowerCase(Locale.getDefault());
+            } else {
+                // Normalize input
+                String nfdNormalizedString = Normalizer.normalize((inLetters), Normalizer.Form.NFD);
+                inLetters = pattern.matcher(nfdNormalizedString).replaceAll("")
+                        .toLowerCase(Locale.getDefault());
 
-	    		if( searchSubstrings.isChecked() ) {
-	    			searchAllMatchingAnagrams(languageSelected, inLetters);
-	    		} else {
-	    			Set<String> matchingWords = new HashSet<String>();
-	    			matchingWords.addAll( dbCreator.getMatchingAnagrams(languageSelected, inLetters) );
-					words = matchingWords.toArray(new String[matchingWords.size()]);
-					publishProgress();
-	    		}
-    		}
+                if (searchSubstrings.isChecked()) {
+                    searchAllMatchingAnagrams(languageSelected, inLetters);
+                } else {
+                    Set<String> matchingWords = new HashSet<String>();
+                    matchingWords.addAll(dbCreator.getMatchingAnagrams(languageSelected, inLetters));
+                    words = matchingWords.toArray(new String[matchingWords.size()]);
+                    publishProgress();
+                }
+            }
             return "";
         }
 
@@ -162,15 +165,15 @@ public class StartPage extends SherlockActivity {
 											getApplicationContext(),
 											R.layout.word_layout, words);
 
-			if( SettingsPage.sortOptionSelected.equals("2") ) {
-				adapter.sort(lengthAscComp);
-			} else if( SettingsPage.sortOptionSelected.equals("3") ) {
-				adapter.sort(lengthDescComp);
-			} else {
-				adapter.sort(alphabeticComp);
-			}
+            if (SettingsPage.sortOptionSelected.equals("2")) {
+                adapter.sort(lengthAscComp);
+            } else if (SettingsPage.sortOptionSelected.equals("3")) {
+                adapter.sort(lengthDescComp);
+            } else {
+                adapter.sort(alphabeticComp);
+            }
 
-			listView.setAdapter(adapter);
+            listView.setAdapter(adapter);
         }
 
         @Override
@@ -190,35 +193,35 @@ public class StartPage extends SherlockActivity {
     	 * @param value The letters to search for anagrams
     	 * @return
     	 */
-    	private void searchAllMatchingAnagrams(String dict, String value) {
-    			int numOfSubsets = 1 << value.length();
-    			Set<String> matchingWords = new HashSet<String>();
+        private void searchAllMatchingAnagrams(String dict, String value) {
+            int numOfSubsets = 1 << value.length();
+            Set<String> matchingWords = new HashSet<String>();
 
-    			for (int i = 0; i < numOfSubsets; i++) {
-    				int pos = value.length() - 1;
-    				int bitmask = i;
+            for (int i = 0; i < numOfSubsets; i++) {
+                int pos = value.length() - 1;
+                int bitmask = i;
 
-    				StringBuilder str = new StringBuilder("");
-    				while ( bitmask > 0 ) {
-    					if ((bitmask & 1) == 1) {
-							str.append(value.charAt(pos));
-						}
-    					bitmask >>= 1;
-    					pos--;
-    				}
-    				if( str.length() > 3 ) {
-    					Set<String> tempSet = dbCreator.getMatchingAnagrams(dict, str.toString());
-    					if(!tempSet.isEmpty()) {
-	    					matchingWords.addAll(tempSet);
-	    					words = matchingWords.toArray(new String[matchingWords.size()]);
-	    					publishProgress();
-    					}
-    				}
-    				if( isCancelled() ) {
-    					break;
-    				}
-    			}
-    	}
+                StringBuilder str = new StringBuilder("");
+                while (bitmask > 0) {
+                    if ((bitmask & 1) == 1) {
+                        str.append(value.charAt(pos));
+                    }
+                    bitmask >>= 1;
+                    pos--;
+                }
+                if (str.length() > 3) {
+                    Set<String> tempSet = dbCreator.getMatchingAnagrams(dict, str.toString());
+                    if (!tempSet.isEmpty()) {
+                        matchingWords.addAll(tempSet);
+                        words = matchingWords.toArray(new String[matchingWords.size()]);
+                        publishProgress();
+                    }
+                }
+                if (isCancelled()) {
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -231,14 +234,14 @@ public class StartPage extends SherlockActivity {
 
         boolean keepScreenOn = PreferenceManager.getDefaultSharedPreferences(this)
         								.getBoolean(SettingsPage.KEEP_SCREEN_ON_KEY, true);
-        if(keepScreenOn) {
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		}
+        if (keepScreenOn) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
         // Show changelog if it's the first time a new version loads
         ChangeLog cl = new ChangeLog(this);
-        if ( cl.isFirstRun() ) {
-        	cl.getLogDialog().show();
+        if (cl.isFirstRun()) {
+            cl.getLogDialog().show();
         }
 
         // Load previously selected language from preferences
@@ -266,10 +269,10 @@ public class StartPage extends SherlockActivity {
   		clearButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if(input != null) {
-					input.setText("");
-					input.requestFocus();
-				}
+                if (input != null) {
+                    input.setText("");
+                    input.requestFocus();
+                }
 			}
 		});
   		searchButton = (Button) findViewById(R.id.searchButton);
@@ -287,7 +290,7 @@ public class StartPage extends SherlockActivity {
 					int pos, long id) {
 				if (v != null) {
 	            	startActivity(new Intent(Intent.ACTION_VIEW,
-	            					Uri.parse("http://google.com/search?q=define:"
+	            					Uri.parse(WEB_SEARCH_URI_PREFIX
 	            								+ ((TextView) v).getText().toString())
 	            					));
 				}
@@ -314,16 +317,16 @@ public class StartPage extends SherlockActivity {
 
     @Override
     public void onResume() {
-    	super.onResume();
+        super.onResume();
 
-    	if( !searching ) {
-	    	// Load settings each time the activity loads to ensure latest changes are applied
-	    	SettingsPage.loadSettings(getApplicationContext());
+        if (!searching) {
+            // Load settings each time the activity loads to ensure latest changes are applied
+            SettingsPage.loadSettings(getApplicationContext());
 
-	    	new DBLoaderTask().execute();
+            new DBLoaderTask().execute();
 
-			setupSpinner();
-    	}
+            setupSpinner();
+        }
     }
 
     @Override
@@ -365,14 +368,14 @@ public class StartPage extends SherlockActivity {
 	 * @param values
 	 * @return an int which is the position of the language in the values or 0 if it is not found
 	 */
-	private int getSelectedLanguage(String[] values) {
-		for(int i=0; i < values.length; ++i){
-				if(values[i].equalsIgnoreCase(languageSelected)) {
-					return i;
-				}
-		}
-		return 0;
-	}
+    private int getSelectedLanguage(String[] values) {
+        for (int i = 0; i < values.length; ++i) {
+            if (values[i].equalsIgnoreCase(languageSelected)) {
+                return i;
+            }
+        }
+        return 0;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -383,36 +386,31 @@ public class StartPage extends SherlockActivity {
 
     /** Called when the search button is pressed. */
     public void onSearchButtonClick() {
-    	if (searching) {
-    		dbSearchTask.cancel(true);
-    		return;
-    	}
-    	if (dbCreator!=null && SettingsPage.hasLoadedDictionary(languageSelected)) {
-    		searchString = input.getText().toString();
-        	if(searchString != null
-        			&& !(searchString = searchString.trim()).isEmpty()
-        			&& searchString.matches("[^!@#$%`~;&\"\\(\\)\\[\\]{}.,<>]+")) {
-        		hideSoftKeyboard();
-	    		searchButton.setText(getString(R.string.stop_search));
-	    		dbSearchTask = new DBSearchTask();
-	    		dbSearchTask.execute();
-        	} else {
-        		Toast.makeText(getApplicationContext(),
-        				getString(R.string.no_input_given),
-        				Toast.LENGTH_SHORT)
-        				.show();
-        	}
-    	} else {
-    		hideSoftKeyboard();
-    		Toast.makeText(getApplicationContext(),
-    				getString(R.string.dict_not_loaded),
-    				Toast.LENGTH_SHORT)
-    				.show();
-    	}
+        if (searching) {
+            dbSearchTask.cancel(true);
+            return;
+        }
+        if ((dbCreator != null) && SettingsPage.hasLoadedDictionary(languageSelected)) {
+            searchString = input.getText().toString();
+            if ((searchString != null) && !(searchString = searchString.trim()).isEmpty()
+                    && searchString.matches("[^!@#$%`~;&\"\\(\\)\\[\\]{}.,<>]+")) {
+                hideSoftKeyboard();
+                searchButton.setText(getString(R.string.stop_search));
+                dbSearchTask = new DBSearchTask();
+                dbSearchTask.execute();
+            } else {
+                Toast.makeText(getApplicationContext(), getString(R.string.no_input_given),
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            hideSoftKeyboard();
+            Toast.makeText(getApplicationContext(), getString(R.string.dict_not_loaded), Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     private void hideSoftKeyboard(){
-        if(getCurrentFocus()!=null && getCurrentFocus() instanceof EditText) {
+        if ((getCurrentFocus() != null) && (getCurrentFocus() instanceof EditText)) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
         }
@@ -422,18 +420,20 @@ public class StartPage extends SherlockActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings_button:
-            	startActivity(new Intent(this, SettingsPage.class));
+                startActivity(new Intent(this, SettingsPage.class));
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
 	private void dismissProgressDialog() {
-		if(mProgressDialog != null){
-			try {
-				mProgressDialog.dismiss();
-			} catch(IllegalArgumentException e) { return; }
-		}
+        if (mProgressDialog != null) {
+            try {
+                mProgressDialog.dismiss();
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+        }
 	}
 
 	private static final Comparator<String> alphabeticComp = new Comparator<String>() {
@@ -449,10 +449,10 @@ public class StartPage extends SherlockActivity {
 	private static final Comparator<String> lengthAscComp = new Comparator<String>() {
 		@Override
 		public int compare(String str1, String str2) {
-			if(str1.length() == str2.length()) {
-				return str1.compareTo(str2);
-			}
-			return Integer.valueOf( str1.length() ).compareTo( str2.length() );
+            if (str1.length() == str2.length()) {
+                return str1.compareTo(str2);
+            }
+            return Integer.valueOf(str1.length()).compareTo(str2.length());
 		}
 	};
 
@@ -462,10 +462,10 @@ public class StartPage extends SherlockActivity {
 	private static final Comparator<String> lengthDescComp = new Comparator<String>() {
 		@Override
 		public int compare(String str1, String str2) {
-			if(str1.length() == str2.length()) {
-				return str1.compareTo(str2);
-			}
-			return Integer.valueOf( str2.length() ).compareTo( str1.length() );
+            if (str1.length() == str2.length()) {
+                return str1.compareTo(str2);
+            }
+            return Integer.valueOf(str2.length()).compareTo(str1.length());
 		}
 	};
 
