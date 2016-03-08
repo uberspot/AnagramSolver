@@ -35,5 +35,5 @@ All the dictionaries used in the app were taken from publicly available OpenOffi
 
 ##Download
 
-* (Play Store)[https://play.google.com/store/apps/details?id=com.as.anagramsolver]
-* (F-Droid)[https://f-droid.org/repository/browse/?fdid=com.as.anagramsolver]
+* [Play Store](https://play.google.com/store/apps/details?id=com.as.anagramsolver)
+* [![Get it on F-Droid](https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Get_it_on_F-Droid.svg/200px-Get_it_on_F-Droid.svg.png)](https://f-droid.org/repository/browse/?fdid=com.as.anagramsolver)
