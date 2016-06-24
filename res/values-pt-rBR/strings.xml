@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="rn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_name">Solucionador de Anagramas</string>
+    <string name="settings">Configurações</string>
+    <string name="input">Entrada:</string>
+    <string name="clear">Limpar</string>
+    <string name="search_words">Procurar palavras!</string>
+    <string name="choose_language">Selecionar idioma</string>
+    <string name="choose_enabled_languages">Selecionar idiomas ativos</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancelar</string>
+    <string name="search_substrings">Procurar por anagramas em subtexto</string>
+    <string name="stop_search">Parar busca!</string>
+    <string name="search_ended">A busca terminou</string>
+    <string name="matches">Combinações <xliff:g id="num" example="10">(%1$s):\n</xliff:g></string>
+    <string name="no_input_given">Nenhuma ou entrada incorreta dada<xliff:g>&#8230;</xliff:g></string>
+    <string name="dict_not_loaded">Dicionário selecionado não carregado</string>
+    <string name="searching_please_wait">Procurando. Por favor, aguarde<xliff:g>&#8230;</xliff:g></string>
+    <string name="please_wait">Por favor, aguarde</string>
+    <string name="populating_db">Preenchendo bancos de dados.\nIsto pode demorar alguns minutos.</string>
+    <string name="populating_dbs">Preenchendo banco de dados <xliff:g id="name" example="language">%1$s</xliff:g>.\nIsto pode demorar alguns minutos.</string>
+    <string name="sort_results">Ordenar resultados</string>
+    <string name="sort_results_sum">Os resultados estão ordenados <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+    <string name="keep_screen_on">Manter tela ligada</string>
+    <string name="enabled_languages">Idiomas ativos</string>
+    <string name="enabled_languages_list">Idiomas ativos: <xliff:g id="name" example="languages">%1$s</xliff:g></string>
+
+    <string name="general_settings">Configurações gerais</string>
+    <string name="language_settings">Configurações de idioma</string>
+
+</resources>
