@@ -1,0 +1,12 @@
+<resources>
+	<string-array name="sortOptionsArray">
+		<item>alfabeticamente</item>
+		<item>por comprimento da palavra (asc)</item>
+		<item>por comprimento da palavra (desc)</item>
+	</string-array>
+	<string-array name="sortOptionsValues">
+	    <item>1</item>
+		<item>2</item>
+		<item>3</item>
+	</string-array>
+</resources>
